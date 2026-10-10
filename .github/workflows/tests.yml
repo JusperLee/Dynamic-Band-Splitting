@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1
+          python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements.txt
+          python -m pip install --no-deps -e .
+          python -m pip install -r demo/requirements.txt
+      - name: Package tests
+        run: python -m pytest -q tests
+      - name: Demo tests
+        working-directory: demo
+        run: python -m pytest -q

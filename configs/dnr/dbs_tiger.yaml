@@ -1,0 +1,86 @@
+# DBS-TIGER (128) on DnR v2: the released checkpoint JusperLee/DBS-TIGER-DnR.
+# TIGER Appendix-D objective (waveform + complex-STFT MAE, fixed source order);
+# validation on full tracks with 6 s / 3 s overlap-add.
+seed: 20211121
+
+experiment:
+  dir: runs
+  name: dnr-dbs-tiger
+
+data:
+  _target_: dbs.data.DnRDataModule
+  train_list: null
+  train_dir: null
+  valid_dir: null
+  test_dir: null
+  sample_rate: 44100
+  segment: 3.0
+  num_iter_per_epoch: 10000
+  gain_db: [-10.0, 10.0]
+  drop_prob: 0.1
+  normalize: true
+  max_open_files: 8
+  batch_size: 1
+  num_workers: 8
+  pin_memory: true
+  persistent_workers: true
+
+model:
+  _target_: dbs.models.DBSTIGER
+  out_channels: 132
+  in_channels: 256
+  num_blocks: 8
+  upsampling_depth: 5
+  num_sources: 3
+  win: 2048
+  stride: 512
+  sample_rate: 44100
+  region_configs:
+    - {start: 0, end: 40, max_chunks: 32, target_ratio: 1.25, use_energy: true}
+    - {start: 40, end: 80, max_chunks: 32, target_ratio: 1.25, use_energy: true}
+    - {start: 80, end: 352, max_chunks: 32, target_ratio: 8.5, use_energy: false}
+    - {start: 352, end: 1025, max_chunks: 32, target_ratio: 21.03125, use_energy: false}
+
+system:
+  objective: waveform_stft_mae
+  objective_options: {n_fft: 2048, hop_length: 512}
+  ratio_loss_weight: 0.01
+  fail_on_nonfinite: true
+  optimizer: {_target_: torch.optim.AdamW, lr: 1.0e-3, weight_decay: 0.01}
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    mode: max
+    factor: 0.5
+    patience: 5
+    threshold: 1.0e-3
+    threshold_mode: rel
+    min_lr: 5.0e-5
+    monitor: val_avg_snr
+  validation:
+    inference: {mode: chunked, chunk_seconds: 6.0, hop_seconds: 3.0}
+    loss: waveform_stft_mae
+    order: fixed
+    metrics: [sisdr, snr]
+
+callbacks:
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${experiment.dir}/${experiment.name}/checkpoints
+    monitor: val_avg_snr
+    mode: max
+    save_top_k: 5
+    save_last: true
+    filename: "best-{epoch}-{val_avg_sisdr:.3f}"
+    auto_insert_metric_name: false
+  - _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val_avg_snr
+    mode: max
+    patience: 10
+
+trainer:
+  accelerator: gpu
+  devices: 4
+  precision: 32-true
+  max_epochs: 500
+  gradient_clip_val: 5.0
+  num_sanity_val_steps: 2
+  log_every_n_steps: 20

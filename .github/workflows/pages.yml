@@ -1,0 +1,36 @@
+# Publishes project_page/ to GitHub Pages (https://cslikai.cn/Dynamic-Band-Splitting/).
+name: Project page
+
+on:
+  push:
+    branches: [main]
+    paths: ["project_page/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Fetch the page videos (Git LFS)
+        run: git lfs pull --include="project_page/**" --exclude=""
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: project_page
+      - id: deployment
+        uses: actions/deploy-pages@v4

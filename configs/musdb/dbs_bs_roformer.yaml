@@ -1,0 +1,20 @@
+# DBS-BS-RoFormer on MUSDB18-HQ (MSST recipe). Validation every 5 epochs, as in the legacy run.
+_base_: dbs_bsrnn.yaml
+
+experiment:
+  name: musdb-dbs-bs-roformer
+
+model:
+  _target_: dbs.models.DBSBSRoformer
+  dim: 384
+  depth: 6
+  ratio_loss_weight: 0.01
+  multi_stft_resolution_loss_weight: 1.0
+  activation_checkpointing: true
+
+system:
+  scheduler:
+    frequency: 5
+
+trainer:
+  check_val_every_n_epoch: 5

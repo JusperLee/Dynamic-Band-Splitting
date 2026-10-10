@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Dynamic Band Splitting</title>
+<meta name="description" content="Learning Where to Split: Dynamic Band Splitting for Audio Source Separation — audio demo page.">
+<style>
+:root{
+  --ink:#131a22; --body:#39454f; --muted:#6d7c88; --line:#e3e8ec; --line-soft:#eef1f4;
+  --bg:#fff; --surface:#f7f9fa; --accent:#1f6f9c; --accent-soft:#eaf3f8;
+  --speech:#2f6fb5; --sfx:#d0463b; --music:#2f8a6a;
+  --maxw:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--body);
+  font:16px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%;height:auto}
+a{color:var(--accent)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+
+/* ---------- header ---------- */
+.hero{padding:76px 0 52px;text-align:center;border-bottom:1px solid var(--line)}
+.logo{display:block;width:52px;height:52px;margin:0 auto 22px}
+.links{margin-top:24px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;background:#fff;
+  border:1px solid var(--line);border-radius:7px;font-size:14px;font-weight:560;
+  color:var(--ink);text-decoration:none;transition:border-color .15s,color .15s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn svg{width:15px;height:15px;fill:currentColor;flex:none}
+.venue{margin:0 0 22px;font-size:12.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted)}
+h1{margin:0 auto;max-width:15em;font-size:clamp(30px,4.1vw,50px);line-height:1.12;
+  font-weight:750;letter-spacing:-.033em;color:var(--ink)}
+.hero .sub{margin:20px auto 0;max-width:40em;font-size:17px;color:var(--muted)}
+.authors{margin:30px 0 0;font-size:15.5px;color:var(--body)}
+.affil{margin:8px 0 0;font-size:13.5px;color:var(--muted);line-height:1.7}
+.authors{margin:24px 0 0;font-size:17px;font-weight:600}
+.authors sup,.affil sup{font-weight:500;color:var(--muted)}
+.affil{margin:8px auto 0;max-width:46em;font-size:13.5px;color:var(--muted);line-height:1.6}
+.bibtex{margin:0;padding:18px 20px;overflow-x:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px;font-size:12.5px;line-height:1.55}
+
+/* ---------- shared blocks ---------- */
+section{padding:66px 0}
+section + section{border-top:1px solid var(--line-soft)}
+.eyebrow{margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--accent)}
+h2{margin:0 0 14px;font-size:clamp(23px,2.5vw,31px);line-height:1.22;
+  font-weight:700;letter-spacing:-.024em;color:var(--ink)}
+h3{margin:0 0 12px;font-size:18.5px;font-weight:670;letter-spacing:-.012em;color:var(--ink)}
+.lede{margin:0;max-width:62em;font-size:17px}
+p{margin:0 0 14px}
+p:last-child{margin-bottom:0}
+.center{text-align:center}
+.center h2, .center .eyebrow{text-align:center}
+.center .lede{margin-left:auto;margin-right:auto;text-align:center}
+
+figure{margin:34px 0 0}
+figure img{width:100%;border:1px solid var(--line);border-radius:6px;background:#fff}
+figure img.bare{border:0;border-radius:0}
+figcaption{margin-top:12px;font-size:13.5px;line-height:1.6;color:var(--muted)}
+figcaption b{color:var(--body);font-weight:650}
+
+.abstract{max-width:52em;margin:0 auto}
+.abstract p{font-size:16.5px}
+
+/* ---------- highlight cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:38px}
+.card{padding:22px 22px 24px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.card .num{font-size:27px;font-weight:720;letter-spacing:-.02em;color:var(--accent);
+  font-variant-numeric:tabular-nums}
+.card .lbl{margin-top:4px;font-size:14px;font-weight:650;color:var(--ink)}
+.card p{margin:8px 0 0;font-size:14px;line-height:1.56;color:var(--muted)}
+
+/* ---------- method steps ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:36px}
+.step{padding:18px 18px 20px;border:1px solid var(--line);border-radius:8px}
+.step .k{font-size:11.5px;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+.step h4{margin:7px 0 6px;font-size:15px;font-weight:660;color:var(--ink)}
+.step p{font-size:13.5px;line-height:1.55;color:var(--muted)}
+
+/* ---------- tables ---------- */
+.tables{display:grid;gap:34px;margin-top:38px}
+.tbl-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:12px}
+.tbl-head h3{margin:0}
+.tbl-head span{font-size:13.5px;color:var(--muted)}
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;min-width:560px;border-collapse:collapse;font-size:14.5px;
+  font-variant-numeric:tabular-nums}
+caption{caption-side:bottom;margin-top:11px;font-size:13px;line-height:1.55;
+  color:var(--muted);text-align:left}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line-soft)}
+th:first-child,td:first-child{text-align:left;white-space:nowrap}
+thead th{border-bottom:1.5px solid #cdd5db;font-size:13px;font-weight:680;color:var(--ink)}
+tbody tr.ours{background:var(--accent-soft)}
+tbody tr.ours td{font-weight:650;color:var(--ink)}
+tbody tr.group-end td{border-bottom:1.5px solid #cdd5db}
+.gain{margin-left:4px;font-size:11.5px;font-weight:700;color:var(--sfx);vertical-align:super}
+td.dim{color:var(--muted);font-weight:400}
+
+/* ---------- demo ---------- */
+.scene{padding-top:54px}
+.scene:first-of-type{padding-top:0}
+.scene + .scene{margin-top:56px;border-top:1px solid var(--line-soft)}
+.scene-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-bottom:24px}
+.scene-head h3{margin:0;font-size:20px}
+.scene-head .time{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.model{margin-top:34px}
+.model-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin-bottom:14px;
+  padding-bottom:9px;border-bottom:1px solid var(--line-soft)}
+.model-head h4{margin:0;font-size:16px;font-weight:670;color:var(--ink)}
+.tag{padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.02em}
+.tag.ours{background:var(--accent-soft);color:var(--accent)}
+.tag.base{background:var(--surface);color:var(--muted);border:1px solid var(--line)}
+.stage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.clip{margin:0;min-width:0}
+.clip.is-featured{grid-column:1/-1;grid-row:1;width:100%;max-width:780px;margin:0 auto 4px}
+.clip:not(.is-featured){grid-row:2}
+.clip:not(.is-featured) video{cursor:zoom-in}
+.clip:not(.is-featured):hover video{border-color:var(--accent-soft)}
+.clip .label{display:flex;align-items:center;gap:7px;margin-bottom:7px;
+  font-size:13.5px;font-weight:650;color:var(--body)}
+.clip .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--muted)}
+.clip.speech .dot{background:var(--speech)}
+.clip.sfx .dot{background:var(--sfx)}
+.clip.music .dot{background:var(--music)}
+.clip.is-playing .label{color:var(--accent)}
+video{display:block;width:100%;aspect-ratio:8/5;object-fit:contain;
+  background:#fff;border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.clip.is-playing video{border-color:var(--accent)}
+video:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.hint{margin:26px 0 0;padding:13px 16px;background:var(--surface);
+  border:1px solid var(--line);border-radius:7px;font-size:13.5px;color:var(--muted)}
+
+footer{padding:40px 0 56px;border-top:1px solid var(--line);
+  font-size:13.5px;line-height:1.7;color:var(--muted)}
+footer p{max-width:62em}
+
+@media (max-width:900px){
+  .cards,.steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:680px){
+  .wrap{padding:0 18px}
+  .hero{padding:52px 0 36px}
+  section{padding:44px 0}
+  .cards,.steps,.grid3{grid-template-columns:1fr}
+  .scene + .scene{margin-top:40px}
+  .stage{grid-template-columns:1fr}
+  .clip.is-featured,.clip:not(.is-featured){grid-column:1;grid-row:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <img class="logo" src="figures/logo.svg" alt="DBS logo">
+    <h1>Learning Where to Split: Dynamic Band Splitting for Audio Source Separation</h1>
+    <p class="sub">Content-adaptive frequency partitioning that moves band boundaries with the mixture, under a fixed band-token budget.</p>
+    <p class="authors">Bingzhe Zhang<sup>1*</sup> &nbsp;·&nbsp; Kai Li<sup>1,2*†</sup> &nbsp;·&nbsp; Xiaolin Hu<sup>1,2,3†</sup></p>
+    <p class="affil"><sup>1</sup>Department of Computer Science and Technology, Institute for AI, BNRist, Tsinghua University, Beijing 100084, China<br>
+      <sup>2</sup>IDG/McGovern Institute for Brain Research, Tsinghua University, Beijing 100084, China<br>
+      <sup>3</sup>Chinese Institute for Brain Research (CIBR), Beijing 100010, China<br>
+      * Equal contribution &nbsp;·&nbsp; † Corresponding authors &nbsp;·&nbsp; {zbz24,li-k24}@mails.tsinghua.edu.cn, xlhu@tsinghua.edu.cn</p>
+    <div class="links">
+      <a class="btn" href="https://github.com/JusperLee/Dynamic-Band-Splitting" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.23 1.88.88 2.34.67.07-.52.28-.88.51-1.08-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.19c0 .21.14.46.55.38A8 8 0 0 0 8 0Z"/></svg>
+        Code
+      </a>
+      <a class="btn" href="#demo">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.7v10.6c0 .43.47.7.84.48l8.4-5.3a.56.56 0 0 0 0-.96l-8.4-5.3a.56.56 0 0 0-.84.48Z"/></svg>
+        Audio demo
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="abstract">
+  <div class="wrap">
+    <div class="abstract">
+      <p class="eyebrow">Abstract</p>
+      <p>Audio source separation models must preserve fine spectral structure while keeping the cost of the separator tractable. Band-split architectures reduce this cost by manually partitioning the spectrum into predefined frequency bands and encoding each band as a token, but the same boundaries are used for every mixture. Because informative spectral structure varies with source content, fixed boundaries can merge discriminative components or spend tokens where little resolution is needed.</p>
+      <p>We introduce <b>Dynamic Band Splitting (DBS)</b>, an end-to-end framework that adapts boundary locations and band widths to each mixture under a fixed band-token budget. DBS predicts content-conditioned boundary scores within coarse frequency regions, selects a prescribed number of boundaries using hard Top-<i>K</i>, and applies content-dependent pooling to obtain compact band tokens. After separation, it smooths and expands these tokens to the original STFT grid, refines them along frequency, and decodes complex masks with a frequency-shared head.</p>
+      <p>DBS improved separation over the corresponding static models on DnR v2, MUSDB18-HQ, and EchoSet, with DBS-BSRNN achieving a relative gain of 29.0% in average SI-SDR on DnR v2. These results and boundary analyses on DnR v2 show that content-adaptive frequency partitioning benefits multiple separator backbones under a fixed band-token budget.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="num">+29.0%</div>
+        <div class="lbl">Relative average SI-SDR</div>
+        <p>DBS-BSRNN over the reported BSRNN result on DnR v2, from 7.03 to 9.07 dB.</p>
+      </div>
+      <div class="card">
+        <div class="num">128</div>
+        <div class="lbl">Band tokens, held fixed</div>
+        <p>Boundary locations and widths move with the mixture; the token count and feature dimension do not.</p>
+      </div>
+      <div class="card">
+        <div class="num">4</div>
+        <div class="lbl">Backbones improved</div>
+        <p>BSRNN, TIGER, BS-RoFormer, and MelRoFormer, across cinematic, music, and speech separation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teaser">
+  <div class="wrap">
+    <p class="eyebrow">What the model learns</p>
+    <h2>Partitions follow the acoustic content</h2>
+    <p class="lede">Across a continuous 30-second <i>Tears of Steel</i> excerpt, the coarse-region scaffold and the 128-band budget stayed fixed while the learned boundaries moved with what was happening on screen.</p>
+    <figure>
+      <img src="figures/teaser.jpg" alt="Three-panel figure: representative video frames, time-varying acoustic content labels, and content-adaptive frequency partitions across a 30-second clip" class="bare">
+      <figcaption><b>DBS partitions across a 30-second excerpt.</b> Each column is a non-overlapping three-second window, showing its midpoint frame, dominant acoustic content, and predicted partition. Colored lines highlight five learned boundaries per region; faint lines show the others, and black lines mark the fixed coarse-region limits.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <p class="eyebrow">Method</p>
+    <h2>Where the boundaries come from</h2>
+    <p class="lede">DBS divides the frequency axis into <i>R</i> coarse regions, each with a prescribed band budget, then predicts content-dependent boundary scores inside every region. Hard Top-<i>K</i> selection turns those scores into exactly the prescribed number of contiguous bands, so the separator always receives the same token count.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="k">01</div>
+        <h4>Boundary prediction</h4>
+        <p>Temporal convolutions and per-bin magnitude statistics feed a BiLSTM; contextual dissimilarity and magnitude change give a boundary probability per candidate transition.</p>
+      </div>
+      <div class="step">
+        <div class="k">02</div>
+        <h4>Hard Top-<i>K</i> selection</h4>
+        <p>The highest-scoring transitions per region form contiguous bands. Locations and widths change across mixtures; the budget <i>J</i> does not.</p>
+      </div>
+      <div class="step">
+        <div class="k">03</div>
+        <h4>Content-weighted pooling</h4>
+        <p>Each variable-width band is pooled into one <i>D</i>-dimensional token per frame, giving the separator a fixed-size input sequence.</p>
+      </div>
+      <div class="step">
+        <div class="k">04</div>
+        <h4>Full-resolution decoding</h4>
+        <p>Separated tokens are smoothed, expanded back to the STFT grid, refined along frequency, and decoded into complex masks by a frequency-shared head.</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="figures/overall.png" alt="DBS pipeline: mixture, STFT, dynamic band splitting into four regions, band tokenization, separator, token expansion and mask decoding, separated sources">
+      <figcaption><b>Overview of DBS</b>, using cinematic audio separation on DnR v2 as an example. The predicted partition <i>P</i>(<b>X</b>) is shared by band encoding and full-resolution reconstruction.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="figures/bound_predict.png" alt="Boundary predictor: Conv2D and magnitude statistics into BiLSTM, contextual dissimilarity plus magnitude difference, calibration, boundary probability, hard Top-K">
+      <figcaption><b>Dynamic band splitting within a coarse region.</b> The calibrated boundary probability field is reduced to a fixed number of hard boundaries by Top-<i>K</i> selection.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="figures/prob-guide.png" alt="Reconstruction path: separated tokens, probability-guided smoothing, token expansion to STFT bins, frequency refinement, frequency-shared mask prediction">
+      <figcaption><b>Full-resolution reconstruction.</b> Probability-guided smoothing softens transitions before the tokens are expanded with the same hard partition used by the encoder, so the separator's frequency resolution is decoupled from the output's.</figcaption>
+    </figure>
+
+    <p class="hint">Hard selection blocks ordinary gradients to the boundary predictor. DBS uses a straight-through estimator: the hard partition in the forward pass, a local soft assignment in the backward pass, plus a value-preserving confidence path and a ratio regularizer on the soft boundary density.</p>
+  </div>
+</section>
+<section id="results">
+  <div class="wrap">
+    <p class="eyebrow">Results</p>
+    <h2>Gains across datasets and backbones</h2>
+    <p class="lede">All comparisons keep the band-token budget fixed within each pairing. Red superscripts show the gain in dB over the paired baseline; <span style="white-space:nowrap">&dagger;</span> marks models trained from scratch in this work.</p>
+
+    <div class="tables">
+      <div>
+        <div class="tbl-head"><h3>DnR v2</h3><span>cinematic separation · SI-SDR (dB)</span></div>
+        <div class="scroller">
+          <table>
+            <caption>Source-wise SI-SDR on the DnR v2 test set, with parameter counts and MACs per second of input audio. Avg. is the unweighted source mean.</caption>
+            <thead><tr><th>Method</th><th>Music</th><th>Speech</th><th>SFX</th><th>Avg.</th><th>Params (M)</th><th>MACs (G/s)</th></tr></thead>
+            <tbody>
+              <tr><td>Conv-TasNet</td><td>0.30</td><td>8.50</td><td>2.00</td><td>3.60</td><td class="dim">5.3</td><td class="dim">19.8</td></tr>
+              <tr><td>MRX</td><td>4.20</td><td>12.30</td><td>5.70</td><td>7.40</td><td class="dim">30.5</td><td class="dim">10.6</td></tr>
+              <tr><td>BSRNN</td><td>5.50</td><td>13.80</td><td>1.80</td><td>7.03</td><td class="dim">52.8</td><td class="dim">18.2</td></tr>
+              <tr class="group-end"><td>TIGER</td><td>5.14</td><td>13.51</td><td>3.66</td><td>7.44</td><td class="dim">1.4</td><td class="dim">10.8</td></tr>
+              <tr><td>BSRNN (128)<sup>&dagger;</sup></td><td>4.83</td><td>14.87</td><td>3.38</td><td>7.69</td><td class="dim">35.5</td><td class="dim">76.6</td></tr>
+              <tr class="ours group-end"><td>DBS-BSRNN (128)<sup>&dagger;</sup></td><td>6.48<span class="gain">+1.65</span></td><td>15.01<span class="gain">+0.14</span></td><td>5.73<span class="gain">+2.35</span></td><td>9.07<span class="gain">+1.38</span></td><td>4.7</td><td>124.0</td></tr>
+              <tr><td>TIGER (128)<sup>&dagger;</sup></td><td>6.18</td><td>14.91</td><td>5.13</td><td>8.74</td><td class="dim">1.4</td><td class="dim">20.4</td></tr>
+              <tr class="ours"><td>DBS-TIGER (128)<sup>&dagger;</sup></td><td>7.78<span class="gain">+1.60</span></td><td>15.90<span class="gain">+0.99</span></td><td>6.70<span class="gain">+1.57</span></td><td>10.13<span class="gain">+1.39</span></td><td>1.0</td><td>31.6</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="tbl-head"><h3>MUSDB18-HQ</h3><span>music separation · four-stem SDR (dB)</span></div>
+        <div class="scroller">
+          <table>
+            <caption>Single models that jointly estimate all four stems, trained only on the MUSDB18-HQ training split without external audio. Avg. is the unweighted stem mean.</caption>
+            <thead><tr><th>Model</th><th>Vocals</th><th>Drums</th><th>Bass</th><th>Other</th><th>Avg.</th><th>Params (M)</th><th>MACs (G/s)</th></tr></thead>
+            <tbody>
+              <tr><td>BSRNN<sup>&dagger;</sup></td><td>6.01</td><td>6.23</td><td>4.49</td><td>3.62</td><td>5.09</td><td class="dim">71.7</td><td class="dim">21.8</td></tr>
+              <tr class="ours group-end"><td>DBS-BSRNN<sup>&dagger;</sup></td><td>6.70<span class="gain">+0.69</span></td><td>6.44<span class="gain">+0.21</span></td><td>4.58<span class="gain">+0.09</span></td><td>4.01<span class="gain">+0.39</span></td><td>5.43<span class="gain">+0.35</span></td><td>21.7</td><td>20.8</td></tr>
+              <tr><td>BS-RoFormer<sup>&dagger;</sup></td><td>5.14</td><td>5.76</td><td>3.95</td><td>3.17</td><td>4.50</td><td class="dim">378.5</td><td class="dim">292.7</td></tr>
+              <tr class="ours group-end"><td>DBS-BS-RoFormer<sup>&dagger;</sup></td><td>7.64<span class="gain">+2.50</span></td><td>7.72<span class="gain">+1.96</span></td><td>5.29<span class="gain">+1.34</span></td><td>4.72<span class="gain">+1.55</span></td><td>6.34<span class="gain">+1.84</span></td><td>33.9</td><td>290.5</td></tr>
+              <tr><td>MelRoFormer<sup>&dagger;</sup></td><td>9.20</td><td>8.29</td><td>6.05</td><td>5.48</td><td>7.25</td><td class="dim">98.7</td><td class="dim">171.7</td></tr>
+              <tr class="ours"><td>DBS-MelRoFormer<sup>&dagger;</sup></td><td>10.02<span class="gain">+0.82</span></td><td>9.30<span class="gain">+1.01</span></td><td>6.96<span class="gain">+0.91</span></td><td>5.98<span class="gain">+0.50</span></td><td>8.07<span class="gain">+0.82</span></td><td>19.1</td><td>252.9</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="tbl-head"><h3>EchoSet</h3><span>speech separation · 0–8 kHz analyzed range</span></div>
+        <div class="scroller">
+          <table>
+            <caption>Published scores and costs for the compared systems are taken from Tables 2 and 3 of TIGER. DBS improves both backbones over the narrower analyzed bandwidth.</caption>
+            <thead><tr><th>Method</th><th>SDRi</th><th>SI-SDRi</th><th>Params (M)</th><th>MACs (G/s)</th></tr></thead>
+            <tbody>
+              <tr><td>A-FRCNN-16</td><td>9.64</td><td>8.76</td><td class="dim">6.1</td><td class="dim">81.3</td></tr>
+              <tr><td>TDANet Large</td><td>10.14</td><td>9.21</td><td class="dim">2.3</td><td class="dim">9.2</td></tr>
+              <tr class="group-end"><td>TF-GridNet</td><td>13.73</td><td>12.85</td><td class="dim">14.4</td><td class="dim">323.8</td></tr>
+              <tr><td>BSRNN</td><td>12.75</td><td>12.23</td><td class="dim">26.0</td><td class="dim">98.7</td></tr>
+              <tr class="ours group-end"><td>DBS-BSRNN</td><td>13.21<span class="gain">+0.46</span></td><td>12.66<span class="gain">+0.43</span></td><td>7.1</td><td>38.1</td></tr>
+              <tr><td>TIGER</td><td>14.22</td><td>13.73</td><td class="dim">0.8</td><td class="dim">15.3</td></tr>
+              <tr class="ours"><td>DBS-TIGER</td><td>14.55<span class="gain">+0.33</span></td><td>14.04<span class="gain">+0.31</span></td><td>1.0</td><td>21.1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="analysis">
+  <div class="wrap">
+    <p class="eyebrow">Analysis</p>
+    <h2>The boundaries really do move, and it matters</h2>
+    <p class="lede">Two controls separate the effect of boundary placement from the rest of the architecture. Across 64 DnR v2 test mixtures under the fixed 128-band budget, all 64 central three-second windows produced distinct partitions, boundaries changed between adjacent windows of the same recording, and repeated inference on identical inputs reproduced them exactly.</p>
+
+    <figure>
+      <img src="figures/dynamics_and_budget.png" alt="Box plots of boundary replacement percentage across mixtures and within recordings under a fixed 128-band budget">
+      <figcaption><b>Boundary adaptation on DnR v2.</b> Replacement is the percentage of internal boundaries not shared by two regional partitions. Crosses mark repeated inference on identical inputs. Center lines are medians, boxes span interquartile ranges, and whiskers extend to the most extreme observations within 1.5 interquartile ranges of the quartiles.</figcaption>
+    </figure>
+
+    <div class="tables">
+      <div>
+        <div class="tbl-head"><h3>Fixed-boundary controls</h3><span>DnR v2 · same architecture and schedule · 128 bands</span></div>
+        <div class="scroller">
+          <table>
+            <caption>Each control replaces the learned partition with a fixed 128-band layout and is trained separately. The learnable filterbank diverged on music and sound effects.</caption>
+            <thead><tr><th>Variant</th><th>Music</th><th>Speech</th><th>SFX</th><th>Avg.</th></tr></thead>
+            <tbody>
+              <tr class="group-end"><td>BSRNN (128)</td><td>4.83</td><td>14.87</td><td>3.38</td><td>7.69</td></tr>
+              <tr><td>Uniform</td><td>5.58</td><td>14.43</td><td>3.99</td><td>8.00</td></tr>
+              <tr><td>BSRNN layout</td><td>6.13</td><td>14.86</td><td>5.03</td><td>8.67</td></tr>
+              <tr><td>Mel bands</td><td>2.85</td><td>14.65</td><td>0.10</td><td>5.87</td></tr>
+              <tr class="group-end"><td>Learnable filterbank</td><td>&minus;11.47</td><td>8.62</td><td>&minus;32.30</td><td>&minus;11.72</td></tr>
+              <tr class="ours"><td>DBS-BSRNN</td><td>6.48</td><td>15.01</td><td>5.73</td><td>9.07</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="tbl-head"><h3>Component ablations</h3><span>DBS-BSRNN on DnR v2 · SI-SDR (dB)</span></div>
+        <div class="scroller">
+          <table>
+            <caption>Separation quality was most sensitive to the acoustic transition prior and to frequency refinement after token expansion. Predicting boundaries from magnitude statistics alone, without learned spectral features, cost 2.14 dB; the confidence path and explicit energy descriptors contributed smaller gains.</caption>
+            <thead><tr><th>Variant</th><th>Stage</th><th>Music</th><th>Speech</th><th>SFX</th><th>Avg.</th></tr></thead>
+            <tbody>
+              <tr><td>Magnitude-only predictor</td><td class="dim" style="text-align:left">Boundary features</td><td>4.33</td><td>14.02</td><td>2.43</td><td>6.93</td></tr>
+              <tr><td>w/o explicit energy</td><td class="dim" style="text-align:left">Router input</td><td>5.88</td><td>14.50</td><td>5.11</td><td>8.50</td></tr>
+              <tr><td>w/o acoustic transition prior</td><td class="dim" style="text-align:left">Boundary score</td><td>0.49</td><td>12.83</td><td>&minus;1.04</td><td>4.09</td></tr>
+              <tr><td>w/o confidence path</td><td class="dim" style="text-align:left">Assignment gradient</td><td>5.06</td><td>13.90</td><td>3.62</td><td>7.53</td></tr>
+              <tr class="group-end"><td>w/o frequency refinement</td><td class="dim" style="text-align:left">Mask decoder</td><td>0.11</td><td>13.26</td><td>&minus;1.61</td><td>3.92</td></tr>
+              <tr class="ours"><td>Full DBS</td><td style="text-align:left">Full pipeline</td><td>6.48</td><td>15.01</td><td>5.73</td><td>9.07</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">Substituting the BSRNN layout into the trained DBS model at inference, without retraining, reached 8.62 dB average SI-SDR against 8.67 dB for the separately trained fixed-layout model. Within the trained model, boundary placement alone accounted for a 0.45 dB gain over that layout and 1.27 dB over a uniform one.</p>
+
+    <figure>
+      <img src="figures/region1_boundaries.png" alt="Boundary probabilities and selected boundaries for the single-region variant, concentrated at low frequencies">
+      <figcaption><b>Why the coarse regions are needed.</b> With one region instead of four, the selected boundaries concentrate at low frequencies and leave the upper spectrum sparsely partitioned. Average SI-SDR fell from 9.07 dB with four regions to 8.32 dB with two and 6.30 dB with one, at an unchanged token count.</figcaption>
+    </figure>
+  </div>
+</section>
+<section id="demo">
+  <div class="wrap">
+    <p class="eyebrow">Audio demo</p>
+    <h2>Listen to three film scenes</h2>
+    <p class="lede">Each scene is a continuous 30-second excerpt, separated by DBS-BSRNN and by the static 128-band BSRNN control under the same band-token budget. Click any thumbnail to move it into the large slot and play it; click the large video again to pause.</p>
+    <p class="hint">Videos play one at a time by design: starting one pauses the others, so you compare rather than mix. Playback is muted-free and loads only on demand.</p>
+    <div id="scenes"></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Separated Speech, Music, and SFX clips are model estimates, not ground-truth film stems. Source leakage and artifacts may remain, and this qualitative page does not by itself establish a measured separation advantage; the quantitative results above come from the paper's test-set evaluations.</p>
+    <p style="margin-top:12px">Film excerpts are from the open-licensed Blender Foundation shorts <i>Tears of Steel</i> and <i>Sintel</i>. Code: <a href="https://github.com/JusperLee/Dynamic-Band-Splitting">github.com/JusperLee/Dynamic-Band-Splitting</a>.</p>
+    <p style="margin-top:18px">Citation</p>
+    <pre class="bibtex">@misc{zhang2026dbs,
+  title  = {Learning Where to Split: Dynamic Band Splitting for Audio Source Separation},
+  author = {Zhang, Bingzhe and Li, Kai and Hu, Xiaolin},
+  year   = {2026}
+}</pre>
+  </div>
+</footer>
+
+<script>
+const MEDIA_DIR = "media";
+const scenes = [
+  { prefix: "steel_0310", film: "Tears of Steel", time: "03:10–03:40" },
+  { prefix: "steel_0535", film: "Tears of Steel", time: "05:35–06:05" },
+  { prefix: "sintel_0455", film: "Sintel", time: "04:55–05:25" }
+];
+const models = [
+  { key: "dynamic", title: "DBS-BSRNN", tag: "Ours", tagClass: "ours" },
+  { key: "static", title: "Static 128-band BSRNN", tag: "Baseline", tagClass: "base" }
+];
+const tracks = [
+  { key: "mix", label: "Original mixture" },
+  { key: "speech", label: "Separated speech" },
+  { key: "music", label: "Separated music" },
+  { key: "sfx", label: "Separated SFX" }
+];
+
+const players = [];
+
+function makeClip(prefix, model, track) {
+  const base = `${prefix}_${model}_${track.key}`;
+  const clip = document.createElement("figure");
+  clip.className = `clip ${track.key}`;
+
+  const label = document.createElement("div");
+  label.className = "label";
+  const dot = document.createElement("span");
+  dot.className = "dot";
+  label.append(dot, document.createTextNode(track.label));
+
+  const video = document.createElement("video");
+  video.preload = "none";
+  video.playsInline = true;
+  video.poster = `${MEDIA_DIR}/${base}.jpg`;
+  video.tabIndex = 0;
+  video.setAttribute("aria-label", `${track.label}; click or press Enter to enlarge and play`);
+  const source = document.createElement("source");
+  source.src = `${MEDIA_DIR}/${base}.mp4`;
+  source.type = "video/mp4";
+  video.appendChild(source);
+
+  function feature() {
+    const stage = clip.parentElement;
+    if (!stage || clip.classList.contains("is-featured")) return false;
+    for (const sibling of stage.children) sibling.classList.remove("is-featured");
+    clip.classList.add("is-featured");
+    return true;
+  }
+
+  async function toggle() {
+    const promoted = feature();
+    if (!promoted && !video.paused) { video.pause(); return; }
+    for (const other of players) if (other !== video && !other.paused) other.pause();
+    if (video.ended || (Number.isFinite(video.duration) && video.currentTime >= video.duration - .05)) video.currentTime = 0;
+    try { await video.play(); } catch (_) {}
+  }
+  video.addEventListener("click", toggle);
+  video.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggle(); }
+  });
+  video.addEventListener("play", () => clip.classList.add("is-playing"));
+  video.addEventListener("pause", () => clip.classList.remove("is-playing"));
+  video.addEventListener("ended", () => clip.classList.remove("is-playing"));
+
+  players.push(video);
+  clip.append(label, video);
+  return clip;
+}
+
+const root = document.getElementById("scenes");
+for (const scene of scenes) {
+  const section = document.createElement("section");
+  section.className = "scene";
+
+  const head = document.createElement("div");
+  head.className = "scene-head";
+  const title = document.createElement("h3");
+  title.textContent = scene.film;
+  const time = document.createElement("span");
+  time.className = "time";
+  time.textContent = scene.time;
+  head.append(title, time);
+  section.appendChild(head);
+
+  for (const model of models) {
+    const block = document.createElement("div");
+    block.className = "model";
+
+    const modelHead = document.createElement("div");
+    modelHead.className = "model-head";
+    const name = document.createElement("h4");
+    name.textContent = model.title;
+    const tag = document.createElement("span");
+    tag.className = `tag ${model.tagClass}`;
+    tag.textContent = model.tag;
+    modelHead.append(name, tag);
+
+    const stage = document.createElement("div");
+    stage.className = "stage";
+    for (const track of tracks) stage.appendChild(makeClip(scene.prefix, model.key, track));
+    stage.firstElementChild.classList.add("is-featured");
+
+    block.append(modelHead, stage);
+    section.appendChild(block);
+  }
+  root.appendChild(section);
+}
+</script>
+</body>
+</html>

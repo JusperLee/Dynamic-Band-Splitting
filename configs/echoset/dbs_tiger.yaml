@@ -1,0 +1,63 @@
+# DBS-TIGER on EchoSet (16 kHz, two speakers): 67 tokens over 321 bins.
+# The legacy run set no seed; 2026 is used here for reproducibility.
+_base_: dbs_bsrnn.yaml
+
+experiment:
+  name: echoset-dbs-tiger
+
+ddp:
+  backend: null
+
+data:
+  batch_size: 1
+
+model:
+  _target_: dbs.models.DBSTIGER
+  out_channels: 128
+  in_channels: 256
+  num_blocks: 8
+  upsampling_depth: 5
+  num_sources: 2
+  win: 640
+  stride: 160
+  sample_rate: 16000
+  region_configs:
+    - {start: 0, end: 40, target_ratio: 1.01, max_chunks: 40, use_energy: true}
+    - {start: 40, end: 80, target_ratio: 4.0, max_chunks: 10, use_energy: true}
+    - {start: 80, end: 168, target_ratio: 11.0, max_chunks: 8, use_energy: true}
+    - {start: 168, end: 321, target_ratio: 17.0, max_chunks: 9, use_energy: true}
+  energy_feature_mode: mean
+  use_mixture_context: true
+  ratio_loss_mode: fg
+  normalize_ratio_loss: false
+  ste_start_epoch: 30
+
+system:
+  objective: pit_neg_snr
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    mode: min
+    factor: 0.5
+    patience: 20
+    threshold: 1.0e-4
+    threshold_mode: rel
+    min_lr: 0.0
+    monitor: val_loss
+
+callbacks:
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${experiment.dir}/${experiment.name}/checkpoints
+    monitor: val_loss
+    mode: min
+    save_top_k: 5
+    save_last: true
+    filename: "{epoch}"
+  - _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val_loss
+    mode: min
+    patience: 40
+
+trainer:
+  devices: 3
+  sync_batchnorm: true
+  num_sanity_val_steps: 2

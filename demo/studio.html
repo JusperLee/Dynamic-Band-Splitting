@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DBS · Listening studio</title>
+  <style>
+    :root{color-scheme:light;--paper:#f7f6ef;--panel:#fffef9;--ink:#203c35;--muted:#747d71;--line:#dddcd1;--amber:#ac6a29;--blue:#487b91;--green:#398572;--rose:#a37086}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Avenir Next","Trebuchet MS",sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed}button:focus-visible,input:focus-visible,video:focus-visible,svg:focus-visible{outline:3px solid var(--amber);outline-offset:4px}button{touch-action:manipulation}button,input{accent-color:var(--ink)}
+    .studio{max-width:1440px;margin:auto;padding:28px 28px 24px}.masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}.eyebrow{display:flex;gap:9px;align-items:center;font-size:10px;font-weight:700;letter-spacing:.17em;text-transform:uppercase}.mark{display:inline-flex;height:18px;align-items:center;gap:3px}.mark i{width:2px;display:block;background:var(--ink)}.mark i:nth-child(1){height:8px}.mark i:nth-child(2){height:17px}.mark i:nth-child(3){height:12px}.mark i:nth-child(4){height:6px}h1{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:28px;letter-spacing:-.048em;line-height:1.05;margin:9px 0 0}.header-meta{text-align:right;font-size:10px;letter-spacing:.06em;color:var(--muted);line-height:1.7;max-width:40%}.status-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:30px;padding:5px 10px;margin-bottom:6px;color:var(--ink);letter-spacing:.035em;background:var(--panel)}.model-label{color:#5a6e60;font-size:10px;line-height:1.5;letter-spacing:.015em;overflow-wrap:anywhere}.status-dot{width:5px;height:5px;border-radius:50%;background:var(--amber)}.status-dot.ready{background:var(--green)}
+    .screen{position:relative;border-radius:3px;overflow:hidden;background:#12231f;min-height:180px;box-shadow:0 12px 32px #233d3510}.screen video{display:block;width:100%;max-height:490px;aspect-ratio:16/9;object-fit:contain;background:#12231f}.screen video[hidden]{display:none}.screen-overlay{position:absolute;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;gap:16px;pointer-events:none;z-index:1}.film-name{padding:7px 11px;background:#10251daa;color:#fffefa;backdrop-filter:blur(12px);font-size:10px;letter-spacing:.035em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;border:1px solid #ffffff20}.stem-badge{padding:7px 12px;background:#eee9d9;color:#183a2c;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;white-space:nowrap}.no-video{padding:85px 25px;text-align:center;color:#e6e7d8}.no-video strong{font-family:Georgia,serif;font-size:29px;font-weight:400}.no-video p{font-size:12px;color:#b3bfb1;margin:12px auto 0;max-width:310px;line-height:1.7}
+    .listening-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:19px 0 20px;border-bottom:1px solid var(--line)}.source-selector{display:flex;gap:5px;flex-wrap:wrap}.source-btn{display:flex;align-items:center;gap:9px;min-height:39px;padding:9px 15px;border:1px solid transparent;background:transparent;color:#5e6d63;border-radius:3px;font-size:12px;font-weight:600;transition:background .18s,color .18s,box-shadow .18s}.source-btn:hover:not(:disabled){background:#e9eadd}.source-btn[aria-pressed="true"]{background:var(--ink);color:#fffcf1;box-shadow:0 3px 9px #203c3518}.source-btn:disabled{opacity:.35}.source-btn .index{font-family:"SFMono-Regular",Consolas,monospace;font-size:9px;opacity:.55}.audio-controls{display:flex;gap:9px;align-items:center;flex-shrink:0}.mute-button{display:flex;align-items:center;justify-content:center;width:28px;height:28px;padding:4px;background:transparent;border:none;color:var(--ink)}.mute-button svg{width:18px;height:18px}.audio-controls input{width:70px;height:3px;cursor:pointer}.source-hint{font-size:10px;color:var(--muted);max-width:155px;line-height:1.4;margin:0 0 0 5px}.playback-status{font-size:11px;color:var(--amber);line-height:1.6;min-height:0}.playback-status:not(:empty){margin-top:10px}
+    .partition-section{padding-top:23px}.section-top{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:17px}.section-title{display:flex;align-items:center;gap:10px}.section-number{font-family:Georgia,serif;color:var(--amber);font-size:17px;font-style:italic}.section-title h2{font-size:12px;margin:0;letter-spacing:.025em;font-weight:600}.window-summary{display:flex;gap:14px;align-items:center;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}.window-summary strong{font-weight:500;color:var(--ink)}.window-summary .divider{height:12px;border-left:1px solid var(--line)}
+    .timeline{display:flex;gap:4px;height:22px;position:relative;margin-bottom:21px;isolation:isolate}.window-tile{display:block;position:relative;min-width:1px;flex:1;padding:0;border:0;border-radius:2px;background:#e1e5da;transition:background .14s}.window-tile:hover{background:#b3c0ad}.window-tile[aria-current="true"]{background:var(--ink)}.window-tile.completed{background:#a4b4a0}.playhead{position:absolute;top:-4px;bottom:-4px;left:0;width:2px;background:var(--amber);pointer-events:none;box-shadow:0 0 0 2px var(--paper);z-index:2;transform:translateX(-1px)}.playhead:before{content:"";position:absolute;width:6px;height:6px;background:var(--amber);border-radius:50%;top:-3px;left:-2px}.timeline-note{font-size:10px;color:var(--muted)}
+    .chart-card{border:1px solid var(--line);background:var(--panel);border-radius:3px;overflow:hidden}.chart-heading{padding:18px 19px 0;display:flex;align-items:center;justify-content:space-between;gap:15px}.chart-heading h3{font-size:11px;font-weight:600;margin:0}.chart-legend{display:flex;gap:13px;flex-wrap:wrap;font-size:9px;color:#74786c}.legend-item{display:inline-flex;gap:5px;align-items:center}.legend-line{display:inline-block;width:16px;height:1px;background:#7a8c7f;opacity:.45}.legend-line.rep{height:2px;background:var(--blue);opacity:1}.legend-line.coarse{height:2px;background:var(--ink);opacity:1}.chart-wrap{padding:5px 10px 0}.chart-wrap svg{display:block;width:100%;height:auto;overflow:visible}.chart-foot{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 19px 15px}.region-legend{display:flex;gap:5px;flex-wrap:wrap}.region-btn{border:1px solid transparent;color:var(--muted);background:transparent;padding:4px 7px;display:inline-flex;align-items:center;gap:5px;border-radius:2px;font-size:9px}.region-btn:hover,.region-btn[aria-pressed="true"]{background:#efeee5;border-color:#d9dbd0;color:var(--ink)}.region-dot{width:5px;height:5px;border-radius:50%}.chart-caption{font-size:9px;line-height:1.5;color:var(--muted);max-width:390px;margin:0;text-align:right}.waiting{padding:37px 24px 39px;min-height:164px;border:1px dashed #cbd2c3;border-radius:3px;text-align:center;display:grid;place-content:center;background:#f0f1e8}.waiting strong{font-family:Georgia,serif;font-size:22px;font-weight:400;letter-spacing:-.02em}.waiting p{font-size:11px;line-height:1.7;color:var(--muted);margin:9px auto 0;max-width:425px}.waiting .waiting-label{font-size:9px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 10px;color:var(--amber)}
+    .studio-footer{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:15px;color:var(--muted);font-size:9px;line-height:1.6}.studio-footer .footer-brand{font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:#506656}.studio-footer .footer-spec{font-family:"SFMono-Regular",Consolas,monospace;text-align:right}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
+    .screen.audio-screen{background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 28px #233d3508;overflow:visible}.audio-screen .screen-overlay{position:static;padding:19px 20px 0;align-items:center}.audio-screen .film-name{padding:0;background:transparent;color:var(--ink);border:0;backdrop-filter:none;font-size:12px;font-weight:600}.audio-screen .stem-badge{border-radius:2px;font-size:9px;letter-spacing:.07em}.audio-surface{padding:17px 20px 13px}.spectrogram-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.spectrogram-heading h2{margin:0;font-size:10px;letter-spacing:.1em;font-weight:600;text-transform:uppercase;color:var(--muted)}.spectrogram-readout{font-family:"SFMono-Regular",Consolas,monospace;font-size:10px;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}.spectrogram-layout{display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-rows:clamp(200px,27vw,300px) 26px;column-gap:9px}.frequency-ticks{position:relative;grid-column:1;grid-row:1;color:var(--muted);font-size:9px;font-variant-numeric:tabular-nums}.frequency-ticks span{position:absolute;right:0;transform:translateY(-50%);white-space:nowrap}.spectrogram-plot{position:relative;grid-column:2;grid-row:1;min-width:0;border-radius:3px;background:#e9ede1;overflow:hidden;cursor:crosshair;isolation:isolate;touch-action:pan-y}.spectrogram-plot:focus-visible{outline:3px solid var(--amber);outline-offset:4px}.spectrogram-plot img{width:100%;height:100%;display:block;object-fit:fill}.spectrogram-grid{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to right,#f8f7dc17 1px,transparent 1px),linear-gradient(to bottom,#f8f7dc20 1px,transparent 1px);background-size:25% 100%,100% 25%;border:1px solid #f8f7dc20}.spectrogram-cursor{position:absolute;top:0;bottom:0;left:0;width:1.5px;background:#ffefb0;box-shadow:0 0 0 1px #203c3538;pointer-events:none;z-index:2}.spectrogram-cursor:before{content:"";position:absolute;top:0;left:-3px;width:7px;height:7px;background:#ffefb0;clip-path:polygon(0 0,100% 0,50% 100%)}.spectrogram-empty{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:24px;color:#5e7464;font-size:12px;line-height:1.7}.time-ticks{position:relative;grid-column:2;grid-row:2;color:var(--muted);font-size:9px;font-variant-numeric:tabular-nums}.time-ticks span{position:absolute;top:8px;transform:translateX(-50%);white-space:nowrap}.spectrogram-foot{display:flex;justify-content:space-between;gap:16px;align-items:center;margin:7px 0 14px;padding-left:51px}.spectrogram-help{margin:0;max-width:300px;font-size:9px;line-height:1.5;color:var(--muted)}.spectrogram-scale{display:flex;align-items:center;gap:5px;font-size:8px;white-space:nowrap;color:var(--muted)}.spectrogram-scale i{display:block;width:62px;height:5px;background:linear-gradient(90deg,#0c1f1d 0%,#123931 20%,#1e654c 45%,#589461 70%,#b8b468 88%,#f7d382 100%);border-radius:2px}.audio-player{display:block;width:100%;height:42px;border-radius:8px;background:#f1f3e9}.audio-player:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+    @media(max-width:760px){.studio{padding:22px 16px 18px}.masthead{margin-bottom:19px;gap:12px}.header-meta{max-width:36%}.header-detail{display:none}.screen-overlay{top:12px;left:12px;right:12px}.listening-bar{gap:12px;flex-wrap:wrap;padding:13px 0 15px}.source-btn{padding:9px 11px}.audio-controls{margin-left:auto}.source-hint{display:none}.chart-heading{align-items:flex-start;gap:10px;padding:15px 12px 0;flex-direction:column}.chart-legend{font-size:8px}.chart-foot{padding:0 12px 13px;align-items:flex-start;flex-direction:column;gap:8px}.chart-caption{text-align:left;max-width:none}.section-top{gap:8px}.window-summary{gap:8px;font-size:10px}.timeline{gap:2px}.chart-wrap{padding:5px 3px 0}.studio-footer{align-items:flex-start}.stem-badge{font-size:8px;padding:7px 9px}.audio-surface{padding:14px 12px 12px}.audio-screen .screen-overlay{padding:15px 12px 0}.spectrogram-foot{padding-left:43px;gap:10px}.spectrogram-layout{grid-template-columns:34px minmax(0,1fr)}.spectrogram-help{font-size:8px}.spectrogram-scale i{width:40px}}
+    @media(max-width:440px){.studio{padding:17px 10px}.masthead{align-items:flex-start}h1{font-size:26px}.eyebrow{font-size:8px;letter-spacing:.12em}.header-meta{font-size:8px}.status-pill{padding:4px 7px}.source-selector{gap:1px}.source-btn{font-size:10px;padding:8px 9px;gap:5px}.source-btn .index{font-size:8px}.section-title h2{font-size:10px}.window-summary{font-size:9px}.section-number{font-size:15px}.audio-controls input{width:62px}.film-name{font-size:8px;max-width:65%}.timeline{height:18px}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+    html[lang="zh"] body{font-family:"Avenir Next","PingFang SC","Microsoft YaHei",sans-serif}html[lang="zh"] h1,html[lang="zh"] .waiting strong,html[lang="zh"] .no-video strong{font-family:"Songti SC","Noto Serif CJK SC",serif;letter-spacing:.015em}html[lang="zh"] .eyebrow,html[lang="zh"] .stem-badge,html[lang="zh"] .waiting-label,html[lang="zh"] .footer-brand{letter-spacing:.065em}
+  </style>
+</head>
+<body>
+<main class="studio">
+  <header class="masthead">
+    <div><div class="eyebrow"><span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span data-i18n="brand">Dynamic Band Splitting</span></div><h1 data-i18n="headline">Inside the scene.</h1></div>
+    <div class="header-meta"><div class="status-pill"><span id="status-dot" class="status-dot" aria-hidden="true"></span><span id="ready-label">Preview session</span></div><div id="model-label" class="model-label">Original video preview</div></div>
+  </header>
+  <section data-i18n-aria="videoSection" aria-label="Video and separated audio">
+    <div id="screen" class="screen">
+      <div id="screen-overlay" class="screen-overlay"><span id="film-name" class="film-name"></span><span id="stem-badge" class="stem-badge">Original mix</span></div>
+      <video id="video" controls playsinline preload="metadata" data-i18n-aria="videoPlayer" aria-label="Video player. Use the source buttons below to listen to separated stems."></video>
+      <div id="audio-surface" class="audio-surface" hidden>
+        <div class="spectrogram-heading"><h2 data-i18n="spectrogramTitle">Sound, in full spectrum</h2><span id="spectrogram-readout" class="spectrogram-readout">00:00 / 00:00</span></div>
+        <div class="spectrogram-layout">
+          <div id="frequency-ticks" class="frequency-ticks" aria-hidden="true"></div>
+          <div id="spectrogram-plot" class="spectrogram-plot" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" data-i18n-aria="spectrogramSeek" aria-label="Seek audio on the spectrogram. Use Left and Right arrows to seek, Home and End to jump.">
+            <img id="spectrogram-image" alt="" draggable="false" hidden>
+            <div id="spectrogram-empty" class="spectrogram-empty" data-i18n="spectrogramLoading">Preparing the spectrogram…</div>
+            <div id="spectrogram-grid" class="spectrogram-grid" aria-hidden="true" hidden></div>
+            <div id="spectrogram-cursor" class="spectrogram-cursor" aria-hidden="true"></div>
+          </div>
+          <div id="time-ticks" class="time-ticks" aria-hidden="true"></div>
+        </div>
+        <div class="spectrogram-foot"><p class="spectrogram-help" data-i18n="spectrogramHelp">Click the spectrum to seek. Switch stems to see and hear each layer.</p><div class="spectrogram-scale" data-i18n-aria="spectrogramScale" aria-label="Spectrogram level in relative decibels"><span id="spectrogram-db-min">−80</span><i aria-hidden="true"></i><span id="spectrogram-db-max">0 dB (rel.)</span></div></div>
+        <audio id="audio-player" class="audio-player" controls preload="metadata" data-i18n-aria="audioPlayer" aria-label="Audio player. Use the source buttons below to listen to separated stems."></audio>
+      </div>
+      <div id="no-video" class="no-video" hidden><strong data-i18n="noVideoTitle">A scene is waiting.</strong><p data-i18n="noVideoCopy">Choose a video above to begin your listening session.</p></div>
+    </div>
+    <div class="listening-bar">
+      <div id="sources" class="source-selector" role="group" data-i18n-aria="audioSource" aria-label="Audio source">
+        <button type="button" class="source-btn" data-source="mix" aria-pressed="true"><span class="index" aria-hidden="true">01</span><span class="source-label">Original</span></button>
+        <button type="button" class="source-btn" data-source="speech" aria-pressed="false" disabled><span class="index" aria-hidden="true">02</span><span class="source-label">Speech</span></button>
+        <button type="button" class="source-btn" data-source="music" aria-pressed="false" disabled><span class="index" aria-hidden="true">03</span><span class="source-label">Music</span></button>
+        <button type="button" class="source-btn" data-source="sfx" aria-pressed="false" disabled><span class="index" aria-hidden="true">04</span><span class="source-label">Sound effects</span></button>
+      </div>
+      <div class="audio-controls"><button id="mute" type="button" class="mute-button" aria-label="Mute output" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="speaker-waves" d="M16 8c2 2 2 6 0 8m3-11c4 4 4 10 0 14"/><path id="speaker-cross" d="m17 9 5 6m0-6-5 6" hidden/></svg></button><label for="volume" class="sr-only" data-i18n="volume">Output volume</label><input id="volume" type="range" min="0" max="1" step="0.05" value="1"><p class="source-hint" id="source-hint">Switch perspectives.<br>Keep the same moment.</p></div>
+    </div>
+    <div id="playback-status" class="playback-status" role="status" aria-live="polite"></div>
+    <audio id="stem-audio" preload="auto" aria-hidden="true"></audio>
+  </section>
+  <section class="partition-section" aria-labelledby="partition-title">
+    <div class="section-top"><div class="section-title"><span class="section-number" aria-hidden="true">ƒ</span><h2 id="partition-title" data-i18n="partitionTitle">The frequency partition</h2></div><div class="window-summary"><strong id="window-time">Awaiting inference</strong><span class="divider" aria-hidden="true"></span><span id="window-number">—</span></div></div>
+    <div id="timeline" class="timeline" role="group" data-i18n-aria="timeline" aria-label="Inference windows. Select a window to seek the video." hidden><span class="playhead" id="playhead" aria-hidden="true"></span></div>
+    <div id="chart-card" class="chart-card" hidden>
+      <div class="chart-heading"><h3 id="chart-title">Current window · learned boundaries</h3><div class="chart-legend" data-i18n-aria="chartLegend" aria-label="Chart legend"><span class="legend-item"><i class="legend-line" aria-hidden="true"></i><span data-i18n="allBoundaries">All boundaries</span></span><span class="legend-item"><i class="legend-line rep" aria-hidden="true"></i><span data-i18n="representativeSubset">Representative subset</span></span><span class="legend-item"><i class="legend-line coarse" aria-hidden="true"></i><span data-i18n="coarseBoundaries">Coarse boundaries</span></span></div></div>
+      <div class="chart-wrap"><svg id="chart" viewBox="0 0 1040 215" role="img" tabindex="0" aria-labelledby="chart-svg-title chart-svg-desc"><title id="chart-svg-title">Frequency partition</title><desc id="chart-svg-desc">Frequency boundaries for the current inference window.</desc></svg></div>
+      <div class="chart-foot"><div id="region-legend" class="region-legend" role="group" data-i18n-aria="highlightRegion" aria-label="Highlight a frequency region"></div><p id="chart-caption" class="chart-caption">Bold colored lines are a subset of the learned boundaries.<br>Frequency axis: symmetric log scale, including zero.</p></div>
+    </div>
+    <div id="waiting" class="waiting"><p class="waiting-label" data-i18n="waitingLabel">Ready when you are</p><strong data-i18n="waitingTitle">Every scene has its own rhythm.</strong><p id="waiting-copy">Run separation to reveal speech, music, sound effects, and the model’s frequency boundaries for each window.</p></div>
+  </section>
+  <footer class="studio-footer"><span class="footer-brand" data-i18n="footerBrand">DBS / Listening studio</span><span id="footer-spec" class="footer-spec">Real model output · Window by window</span></footer>
+</main>
+<script id="manifest" type="application/json">__DBS_MANIFEST__</script>
+<script>
+(() => {
+  'use strict';
+  let manifest;
+  try { manifest = JSON.parse(document.getElementById('manifest').textContent); }
+  catch (_) { manifest = {ready:false, sources:{}, partitions:[]}; }
+  const $ = id => document.getElementById(id);
+  let language = new URLSearchParams(window.location.search).get('lang') === 'zh' ? 'zh' : 'en';
+  const translations = {
+    en: {
+      brand:'Dynamic Band Splitting', headline:'Inside the scene.', videoSection:'Video and separated audio',
+      videoPlayer:'Video player. Use the source buttons below to listen to separated stems.',
+      audioHeadline:'Inside the sound.', audioSection:'Audio and separated stems', audioPlayer:'Audio player. Use the source buttons below to listen to separated stems.',
+      yourAudio:'Your audio', originalAudioPreview:'Original audio preview', audioPreview:'Audio preview',
+      audioError:'The audio could not be opened. Check that the file is available and uses a browser-compatible audio format.',
+      pausedAudioOnly:'The browser paused playback. Press Play in the audio player to resume.',
+      audioTimeline:'Inference windows. Select a window to seek the audio.',
+      spectrogramTitle:'Sound, in full spectrum', spectrogramHelp:'Click the spectrum to seek. Switch stems to see and hear each layer.',
+      spectrogramSeek:'Seek audio on the spectrogram. Use Left and Right arrows to seek, Home and End to jump.',
+      spectrogramLoading:'Preparing the spectrogram…', spectrogramUnavailable:'The spectrogram is unavailable. You can still listen using the player below.',
+      spectrogramScale:'Spectrogram level in relative decibels', relativeDb:'dB (rel.)', spectrogramDescription:label=>`${label} spectrogram. Time runs from left to right; frequency increases from bottom to top.`,
+      spectrogramPosition:(current,total)=>`${current} of ${total} seconds`, spectrogramTime:value=>`${value} s`,
+      noVideoTitle:'A scene is waiting.', noVideoCopy:'Choose a video to begin your listening session.',
+      audioSource:'Audio source', mix:'Original', mixBadge:'Original mix', speech:'Speech', music:'Music', sfx:'Sound effects',
+      mute:'Mute output', unmute:'Unmute output', volume:'Output volume', sourceHint:'Switch perspectives. Keep the same moment.',
+      previewHint:'Preview the original audio. Separate to unlock stems.', partitionTitle:'The frequency partition',
+      timeline:'Inference windows. Select a window to seek the video.', chartLegend:'Chart legend',
+      allBoundaries:'All boundaries', representativeSubset:'Representative subset', coarseBoundaries:'Coarse boundaries',
+      highlightRegion:'Highlight a frequency region', caption:'Bold colored lines are a subset of the learned boundaries. Frequency axis: symmetric log scale, including zero.',
+      overlapCaption:'Latest-starting window shown. Playback averages overlapping window outputs. Bold lines are a subset of learned boundaries. Symmetric log frequency axis.',
+      waitingLabel:'Ready when you are', waitingTitle:'Every scene has its own rhythm.',
+      waitingCopy:'Run separation to reveal speech, music, sound effects, and the model’s frequency boundaries for each window.',
+      noPartitionCopy:'Separated audio is available. This result does not contain frequency partition data.',
+      footerBrand:'DBS / Listening studio', footerDefault:'Real model output · Window by window',
+      footerSpec:(window,hop,rate)=>`${window} s window  /  ${hop} s hop  /  ${rate} kHz`,
+      yourVideo:'Your video', studioTitle:'DBS Studio', ready:'Separation ready', preview:'Preview session',
+      modelOutput:'Model output', originalPreview:'Original video preview', awaiting:'Awaiting inference', noPartition:'No partition data',
+      pausedAudio:'Audio playback was paused by the browser. Pause and play the video to resume sound.',
+      loadingAudio:label=>`Loading ${label.toLowerCase()} audio…`, stemError:'This stem could not be loaded. Select Original to continue listening.',
+      videoError:'The video could not be opened. Check that the file is available and uses a browser-compatible video codec.',
+      chartTitle:'Current window · learned boundaries', svgTitle:'Frequency partition', svgDesc:'Frequency boundaries for the current inference window.',
+      svgWindow:index=>`Frequency partition, window ${index}`,
+      svgWindowDesc:(start,end,total,max)=>`The ${start} to ${end} second inference window contains ${total} supplied frequency-band start positions. Colored lines show the internal boundaries, excluding the black coarse boundaries. Bold colored lines are selected from these same internal boundaries. Frequency increases from zero to ${max} kilohertz on a symmetric logarithmic axis. Use the buttons below to highlight a region.`,
+      region:index=>`Region ${index}`, boundaryTitle:(index,hz,representative)=>`Region ${index} · ${hz} Hz${representative?' · representative boundary':''}`,
+      frequencyAxis:'Frequency (kHz)', learnedWindow:seconds=>`${seconds} s inference window · learned boundaries`,
+      padding:seconds=>` · ${seconds} s valid audio, zero-padded`, windowRange:(start,end)=>`${start}–${end} s`,
+      windowCount:(index,total)=>`Window ${index} / ${total}`, windowSeek:(index,start,end)=>`Window ${index}: ${start} to ${end} seconds`,
+      highlight:label=>`Highlight ${label}`
+    },
+    zh: {
+      brand:'动态频带划分', headline:'听见场景深处。', videoSection:'视频与分离音轨',
+      videoPlayer:'视频播放器。使用下方的音轨按钮试听分离结果。',
+      audioHeadline:'听见声音深处。', audioSection:'音频与分离音轨', audioPlayer:'音频播放器。使用下方的音轨按钮试听分离结果。',
+      yourAudio:'你的音频', originalAudioPreview:'原始音频预览', audioPreview:'音频预览',
+      audioError:'无法打开音频。请确认文件可用，并使用浏览器支持的音频格式。',
+      pausedAudioOnly:'浏览器暂停了音频播放。请点击音频播放器中的播放按钮以恢复声音。',
+      audioTimeline:'推理窗口。选择窗口可跳转到对应音频位置。',
+      spectrogramTitle:'看见声音的频谱', spectrogramHelp:'点击频谱跳转播放位置，切换音轨查看并聆听不同声音。',
+      spectrogramSeek:'通过频谱跳转音频位置。使用左右方向键调整，Home 和 End 键跳到开头或结尾。',
+      spectrogramLoading:'正在准备频谱…', spectrogramUnavailable:'频谱暂不可用，仍可使用下方播放器试听音频。',
+      spectrogramScale:'频谱强度，单位为相对分贝', relativeDb:'dB（相对）', spectrogramDescription:label=>`${label}的频谱。时间从左向右延伸，频率从下向上增加。`,
+      spectrogramPosition:(current,total)=>`共 ${total} 秒，当前第 ${current} 秒`, spectrogramTime:value=>`${value} 秒`,
+      noVideoTitle:'等待一个场景。', noVideoCopy:'选择视频，开始聆听。',
+      audioSource:'音轨选择', mix:'原始音频', mixBadge:'原始混音', speech:'人声', music:'音乐', sfx:'音效',
+      mute:'静音', unmute:'取消静音', volume:'输出音量', sourceHint:'切换音轨，留在同一时刻。',
+      previewHint:'试听原始音频，完成分离后即可切换音轨。', partitionTitle:'频带划分',
+      timeline:'推理窗口。选择窗口可跳转到对应视频位置。', chartLegend:'图例',
+      allBoundaries:'全部边界', representativeSubset:'代表性边界', coarseBoundaries:'粗粒度边界',
+      highlightRegion:'高亮频率区域', caption:'彩色粗线选自模型学习到的频带边界。频率轴采用包含零点的对称对数刻度。',
+      overlapCaption:'显示最近开始的窗口，播放时对重叠窗口的输出取平均。粗线为学习边界的代表性子集，频率轴采用对称对数刻度。',
+      waitingLabel:'准备开始', waitingTitle:'每个场景，都有自己的节奏。',
+      waitingCopy:'运行分离，即可试听人声、音乐与音效，并查看每个窗口中模型学习到的频带边界。',
+      noPartitionCopy:'音轨分离已完成，此结果未包含频带划分数据。',
+      footerBrand:'DBS / 聆听工作室', footerDefault:'真实模型输出 · 逐窗呈现',
+      footerSpec:(window,hop,rate)=>`${window} 秒窗口  /  ${hop} 秒间隔  /  ${rate} kHz`,
+      yourVideo:'你的视频', studioTitle:'DBS 聆听工作室', ready:'分离已完成', preview:'视频预览',
+      modelOutput:'模型输出', originalPreview:'原始视频预览', awaiting:'等待推理', noPartition:'暂无频带数据',
+      pausedAudio:'浏览器暂停了音频播放。请暂停后重新播放视频，以恢复声音。',
+      loadingAudio:label=>`正在加载${label}音轨…`, stemError:'无法加载此音轨，请选择「原始音频」继续试听。',
+      videoError:'无法打开视频。请确认文件可用，并使用浏览器支持的视频编码。',
+      chartTitle:'当前窗口 · 学习到的边界', svgTitle:'频带划分', svgDesc:'当前推理窗口的频带边界。',
+      svgWindow:index=>`第 ${index} 个窗口的频带划分`,
+      svgWindowDesc:(start,end,total,max)=>`第 ${start} 至 ${end} 秒的推理窗口包含 ${total} 个频带起始位置。彩色线条表示内部边界，不包括黑色粗粒度边界；彩色粗线选自这些内部边界。频率沿对称对数轴从零增加至 ${max} 千赫兹。可使用下方按钮高亮某个区域。`,
+      region:index=>`区域 ${index}`, boundaryTitle:(index,hz,representative)=>`区域 ${index} · ${hz} Hz${representative?' · 代表性边界':''}`,
+      frequencyAxis:'频率（kHz）', learnedWindow:seconds=>`${seconds} 秒推理窗口 · 学习到的边界`,
+      padding:seconds=>` · 有效音频 ${seconds} 秒，其余补零`, windowRange:(start,end)=>`${start}–${end} 秒`,
+      windowCount:(index,total)=>`窗口 ${index} / ${total}`, windowSeek:(index,start,end)=>`窗口 ${index}：第 ${start} 至 ${end} 秒`,
+      highlight:label=>`高亮${label}`
+    }
+  };
+  const t = (key,...args) => typeof translations[language][key] === 'function' ? translations[language][key](...args) : translations[language][key];
+  const sourceLabel = key => t(key === 'mix' ? 'mixBadge' : key);
+  const audioMode = manifest.media_type === 'audio';
+  // Audio uses a real, visible audio element as its clock; video keeps the
+  // existing video + synchronized stem player so its picture never reloads.
+  const videoElement = $('video');
+  const video = audioMode ? $('audio-player') : videoElement, audio = $('stem-audio');
+  const palette = ['#487b91','#b77938','#398572','#a37086'];
+  const fills = ['#eef5f5','#faf2e5','#eef6ef','#f5eef2'];
+  const sources = manifest.sources || {};
+  const partitions = Array.isArray(manifest.partitions) ? manifest.partitions.filter(p => Number.isFinite(Number(p.start)) && Number.isFinite(Number(p.end)) && Number(p.end) > Number(p.start)).sort((a,b) => a.start-b.start) : [];
+  const ready = Boolean(manifest.ready);
+  const nyquist = Math.max(1, Number(manifest.sample_rate || 44100) / 2);
+  let coarse = Array.isArray(manifest.coarse_boundaries_hz) ? manifest.coarse_boundaries_hz.map(Number).filter(Number.isFinite) : [];
+  coarse = [...new Set(coarse.filter(f => f >= 0 && f <= nyquist))].sort((a,b) => a-b);
+  const hasRegions = coarse.length === 5;
+  let activeSource = 'mix', activeWindow = -1, highlightedRegion = -1;
+  let audioReady = false, generation = 0, playPending = false, outputMuted = false;
+  let pendingAudioSwitch = null, cancelAudioSwitch = null, spectrumState = 'loading', spectrumGeneration = 0;
+  let frameId = 0;
+  let lastUiTime = 0, lastChartWidth = 0;
+  const prettyTime = seconds => {
+    const value = Math.max(0, Number(seconds) || 0);
+    const minute = Math.floor(value / 60), second = Math.floor(value % 60);
+    return minute ? minute + ':' + String(second).padStart(2,'0') : String(second).padStart(2,'0');
+  };
+  const number = n => Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
+  const secondsLabel = n => Number.isInteger(Number(n)) ? String(Number(n)).padStart(2,'0') : number(n);
+  const duration = () => Number.isFinite(video.duration) ? video.duration : Number(manifest.duration) || (partitions.length ? Number(partitions[partitions.length-1].end) : 0);
+  let messageKey = '', messageArgs = [];
+  const renderMessage = () => { $('playback-status').textContent = messageKey ? t(messageKey, ...messageArgs.map(value => value && value.source ? sourceLabel(value.source) : value)) : ''; };
+  const message = (key,...args) => { messageKey=key;messageArgs=args;renderMessage(); };
+  const svgEl = (tag, attrs={}, content='') => { const el = document.createElementNS('http://www.w3.org/2000/svg',tag); Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v))); if(content)el.textContent=content;return el; };
+  $('status-dot').classList.toggle('ready', ready);
+  const meta = manifest.meta || {};
+  const modelNames = {bsrnn: 'BSRNN', tiger: 'TIGER'};
+  const identity = String(meta.model_key || meta.model_label || meta.architecture || meta.checkpoint_target || '').toLowerCase();
+  const modelLabel = ready ? (modelNames[identity] || (/tiger/.test(identity) ? 'TIGER' : /bsrnn/.test(identity) ? 'BSRNN' : '')) : '';
+  const videoUrl = audioMode ? manifest.audio_url || (sources.mix && sources.mix.url) : manifest.video_url || (sources.mix && sources.mix.url);
+  if(audioMode){videoElement.hidden=true;$('audio-surface').hidden=false;$('screen').classList.add('audio-screen');}
+  if (videoUrl) video.src = videoUrl;
+  else if(!audioMode) { video.hidden=true; $('screen-overlay').hidden=true; $('no-video').hidden=false; }
+
+  function updateVolume() {
+    audio.volume = video.volume;
+    audio.muted = outputMuted;
+    video.muted = (!audioMode && activeSource !== 'mix') || outputMuted;
+    $('volume').value = String(video.volume);
+    $('mute').setAttribute('aria-pressed', String(outputMuted));
+    $('mute').setAttribute('aria-label', t(outputMuted ? 'unmute' : 'mute'));
+    $('speaker-waves').style.display = outputMuted || video.volume === 0 ? 'none' : '';
+    $('speaker-cross').style.display = outputMuted || video.volume === 0 ? '' : 'none';
+  }
+  $('mute').addEventListener('click',()=>{outputMuted=!outputMuted;updateVolume();});
+  $('volume').addEventListener('input',event=>{video.volume=Number(event.target.value);if(video.volume>0)outputMuted=false;updateVolume();});
+  video.addEventListener('volumechange',()=>{
+    if(audioMode||activeSource==='mix')outputMuted=video.muted;
+    else if(!video.muted)video.muted=true;
+    audio.volume=video.volume;audio.muted=outputMuted;
+    $('volume').value=String(video.volume);
+    $('mute').setAttribute('aria-pressed',String(outputMuted));
+    $('mute').setAttribute('aria-label',t(outputMuted?'unmute':'mute'));
+    $('speaker-waves').style.display=outputMuted||video.volume===0?'none':'';
+    $('speaker-cross').style.display=outputMuted||video.volume===0?'':'none';
+  });
+  function alignAudio() {
+    if(audioMode||!audioReady || activeSource==='mix')return;
+    const maximum=Number.isFinite(audio.duration)?Math.max(0,audio.duration-.002):video.currentTime;
+    try { audio.currentTime=Math.max(0,Math.min(video.currentTime,maximum)); } catch (_) {}
+    audio.playbackRate=video.playbackRate;
+  }
+  async function playAudio() {
+    if(audioMode||activeSource==='mix'||!audioReady||video.paused||video.seeking||playPending)return;
+    const token=generation;
+    alignAudio();playPending=true;
+    try { await audio.play(); if(token===generation)message(''); }
+    catch(error) { if(token===generation && !video.paused && error.name!=='AbortError')message('pausedAudio'); }
+    finally { if(token===generation)playPending=false; }
+  }
+  const mediaTime = () => pendingAudioSwitch ? pendingAudioSwitch.time : video.currentTime || 0;
+  const clockTime = value => {
+    const seconds=Math.max(0,Math.floor(Number(value)||0));
+    return String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+  };
+  function spectrumMetadata() {
+    return manifest.spectrograms && manifest.spectrograms[activeSource] || null;
+  }
+  function renderSpectrumAxes() {
+    if(!audioMode)return;
+    const spec=spectrumMetadata()||{};
+    const maximum=Number.isFinite(Number(spec.max_hz))?Number(spec.max_hz):nyquist;
+    const minimum=Number.isFinite(Number(spec.min_hz))?Number(spec.min_hz):0;
+    const total=Math.max(0,Number(spec.duration)||duration());
+    const frequencyTicks=$('frequency-ticks'),timeTicks=$('time-ticks');
+    frequencyTicks.replaceChildren();timeTicks.replaceChildren();
+    for(let i=0;i<=4;i++){
+      const frequency=maximum-(maximum-minimum)*i/4,frequencyLabel=document.createElement('span');
+      frequencyLabel.textContent=frequency>=1000?number(frequency/1000)+' kHz':number(frequency)+' Hz';
+      frequencyLabel.style.top=i*25+'%';
+      if(i===0)frequencyLabel.style.transform='none';
+      if(i===4)frequencyLabel.style.transform='translateY(-100%)';
+      frequencyTicks.append(frequencyLabel);
+      const timeLabel=document.createElement('span');timeLabel.textContent=t('spectrogramTime',number(total*i/4));timeLabel.style.left=i*25+'%';
+      if(i===0)timeLabel.style.transform='none';
+      if(i===4)timeLabel.style.transform='translateX(-100%)';
+      timeTicks.append(timeLabel);
+    }
+    $('spectrogram-db-min').textContent=number(Number.isFinite(Number(spec.db_min))?Number(spec.db_min):-80);
+    $('spectrogram-db-max').textContent=number(Number.isFinite(Number(spec.db_max))?Number(spec.db_max):0)+' '+t('relativeDb');
+    $('spectrogram-image').alt=t('spectrogramDescription',sourceLabel(activeSource));
+    $('spectrogram-empty').textContent=t(spectrumState==='unavailable'?'spectrogramUnavailable':'spectrogramLoading');
+  }
+  function updateSpectrumCursor() {
+    if(!audioMode)return;
+    const total=Math.max(0,duration()),current=Math.max(0,Math.min(total,mediaTime()));
+    $('spectrogram-cursor').style.left=Math.min(100,current/Math.max(.001,total)*100)+'%';
+    $('spectrogram-readout').textContent=clockTime(current)+' / '+clockTime(total);
+    const plot=$('spectrogram-plot');
+    plot.setAttribute('aria-valuemax',String(total));plot.setAttribute('aria-valuenow',String(Math.round(current*10)/10));
+    plot.setAttribute('aria-valuetext',t('spectrogramPosition',number(current),number(total)));
+  }
+  function showSpectrogram() {
+    if(!audioMode)return;
+    const spec=spectrumMetadata(),image=$('spectrogram-image'),token=++spectrumGeneration;
+    image.hidden=true;$('spectrogram-grid').hidden=true;$('spectrogram-empty').hidden=false;
+    spectrumState=spec&&spec.url?'loading':'unavailable';
+    image.onload=()=>{
+      if(token!==spectrumGeneration)return;
+      spectrumState='ready';image.hidden=false;$('spectrogram-grid').hidden=false;$('spectrogram-empty').hidden=true;
+    };
+    image.onerror=()=>{if(token!==spectrumGeneration)return;spectrumState='unavailable';image.hidden=true;renderSpectrumAxes();};
+    if(spec&&spec.url)image.src=spec.url;
+    else image.removeAttribute('src');
+    renderSpectrumAxes();updateSpectrumCursor();
+  }
+  function seekMedia(time) {
+    const next=Math.max(0,Math.min(duration()||0,Number(time)||0));
+    if(pendingAudioSwitch)pendingAudioSwitch.time=next;
+    if(video.readyState>0)try{video.currentTime=next;}catch(_){}
+    alignAudio();updatePartition();updateSpectrumCursor();
+  }
+  $('spectrogram-plot').addEventListener('click',event=>{
+    if(!audioMode)return;
+    const rect=event.currentTarget.getBoundingClientRect();
+    seekMedia((event.clientX-rect.left)/Math.max(1,rect.width)*duration());
+  });
+  $('spectrogram-plot').addEventListener('keydown',event=>{
+    if(!audioMode)return;
+    const step=event.shiftKey?10:1;let target;
+    if(event.key==='ArrowLeft'||event.key==='ArrowDown')target=mediaTime()-step;
+    if(event.key==='ArrowRight'||event.key==='ArrowUp')target=mediaTime()+step;
+    if(event.key==='Home')target=0;
+    if(event.key==='End')target=duration();
+    if(target!==undefined){event.preventDefault();seekMedia(target);}
+  });
+  function loadAudioSource(key,position,resume,rate,token) {
+    if(cancelAudioSwitch)cancelAudioSwitch();
+    pendingAudioSwitch={time:position,play:resume,rate};
+    video.pause();
+    message('loadingAudio',{source:key});
+    const cleanup=()=>{video.removeEventListener('loadedmetadata',onReady);video.removeEventListener('error',onError);if(cancelAudioSwitch===cleanup)cancelAudioSwitch=null;};
+    const onReady=()=>{
+      cleanup();if(token!==generation)return;
+      const desired=pendingAudioSwitch;pendingAudioSwitch=null;
+      if(!desired)return;
+      video.playbackRate=desired.rate;
+      seekMedia(desired.time);updateVolume();message('');
+      if(desired.play)video.play().catch(error=>{if(token===generation&&error.name!=='AbortError')message('pausedAudioOnly');});
+    };
+    // Preserve the requested position on failure, so returning to Original
+    // still resumes at the same moment rather than resetting to the start.
+    const onError=()=>{cleanup();if(token!==generation)return;message(key==='mix'?'audioError':'stemError');};
+    cancelAudioSwitch=cleanup;
+    video.addEventListener('loadedmetadata',onReady);video.addEventListener('error',onError);
+    video.src=key==='mix'?videoUrl:sources[key].url;video.load();showSpectrogram();
+  }
+  function chooseSource(key) {
+    if(key===activeSource)return;
+    if(key!=='mix'&&(!ready||!sources[key]||!sources[key].url))return;
+    const position=mediaTime(),resume=pendingAudioSwitch?pendingAudioSwitch.play:!video.paused&&!video.ended,rate=video.playbackRate;
+    generation++;const token=generation;activeSource=key;audioReady=false;playPending=false;audio.pause();message('');
+    document.querySelectorAll('.source-btn').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.source===key)));
+    const label=sourceLabel(key);
+    $('stem-badge').textContent=label;
+    $('stem-badge').style.background=key==='mix'?'#eee9d9':key==='speech'?'#c7dec9':key==='music'?'#eadcbf':'#b56b33';
+    $('stem-badge').style.color=key==='sfx'?'#fffaf0':'#183a2c';
+    updateVolume();
+    if(audioMode){loadAudioSource(key,position,resume,rate,token);return;}
+    if(key==='mix'){audio.removeAttribute('src');audio.load();return;}
+    message('loadingAudio',{source:key});
+    audio.src=sources[key].url;
+    const onReady=()=>{cleanup();if(token!==generation)return;audioReady=true;alignAudio();message('');if(!video.paused)playAudio();};
+    const onError=()=>{cleanup();if(token===generation)message('stemError');};
+    const cleanup=()=>{audio.removeEventListener('loadedmetadata',onReady);audio.removeEventListener('error',onError);};
+    audio.addEventListener('loadedmetadata',onReady);audio.addEventListener('error',onError);
+    audio.load();
+  }
+  document.querySelectorAll('.source-btn').forEach(btn=>{
+    const key=btn.dataset.source,source=sources[key];
+    btn.querySelector('.source-label').textContent=t(key);
+    btn.disabled=key==='mix'?!videoUrl:!ready||!source||!source.url;
+    btn.addEventListener('click',()=>chooseSource(key));
+  });
+
+  function plot(index) {
+    const partition=partitions[index];
+    if(!partition)return;
+    const chart=$('chart');chart.replaceChildren();
+    chart.append(svgEl('title',{id:'chart-svg-title'},t('svgWindow',index+1)));
+    const regions=Array.isArray(partition.boundaries_hz)?partition.boundaries_hz:[];
+    const totalBoundaries=regions.reduce((n,r)=>n+(Array.isArray(r)?r.length:0),0);
+    chart.append(svgEl('desc',{id:'chart-svg-desc'},t('svgWindowDesc',secondsLabel(partition.start),secondsLabel(partition.end),totalBoundaries,number(nyquist/1000))));
+    // Match the SVG coordinate system to its rendered width so type stays readable.
+    const graphWidth = Math.max(320, Math.round(chart.getBoundingClientRect().width || 1040));
+    lastChartWidth = graphWidth;
+    chart.setAttribute('viewBox', '0 0 ' + graphWidth + ' 215');
+    const left=graphWidth<480?28:42,right=graphWidth-(graphWidth<480?28:30),top=29,bottom=152;
+    const x=f=>left+Math.log1p(Math.max(0,Math.min(nyquist,Number(f)))/100)/Math.log1p(nyquist/100)*(right-left);
+    const body=svgEl('g');chart.append(body);
+    if(hasRegions)for(let region=0;region<4;region++){
+      const faded=highlightedRegion>=0&&highlightedRegion!==region;
+      body.append(svgEl('rect',{x:x(coarse[region]),y:top,width:Math.max(0,x(coarse[region+1])-x(coarse[region])),height:bottom-top,fill:fills[region],opacity:faded?.35:1}));
+      body.append(svgEl('text',{x:(x(coarse[region])+x(coarse[region+1]))/2,y:20,fill:palette[region],opacity:faded?.35:1,'text-anchor':'middle','font-family':'Avenir Next, Trebuchet MS, sans-serif','font-size':10,'font-weight':600},'R'+(region+1)));
+    }
+    const tickCandidates=[0,250,500,1000,2000,4000,8000,16000].filter(f=>f<nyquist);
+    const tickValues=[];
+    const tickLabelWidth=f=>number(f/1000).length*6.3;
+    const separated=(a,b)=>x(b)-x(a)>=(tickLabelWidth(a)+tickLabelWidth(b))/2+16;
+    tickCandidates.forEach(f=>{if(!tickValues.length||separated(tickValues[tickValues.length-1],f))tickValues.push(f);});
+    while(tickValues.length>1&&!separated(tickValues[tickValues.length-1],nyquist))tickValues.pop();
+    tickValues.push(nyquist);
+    tickValues.forEach(f=>{
+      body.append(svgEl('line',{x1:x(f),y1:top+8,x2:x(f),y2:bottom,stroke:'#405f48','stroke-opacity':.07,'stroke-width':1}));
+      body.append(svgEl('line',{x1:x(f),y1:bottom,x2:x(f),y2:bottom+5,stroke:'#607260','stroke-width':.7}));
+      body.append(svgEl('text',{x:x(f),y:bottom+21,fill:'#5d6d60','text-anchor':'middle','font-family':'Avenir Next, Trebuchet MS, sans-serif','font-size':11},number(f/1000)));
+    });
+    regions.slice(0,4).forEach((values,region)=>{
+      if(!Array.isArray(values))return;
+      const boundaries=[...new Set(values.map(Number).filter(f=>Number.isFinite(f)&&f>=0&&f<=nyquist&&!coarse.some(c=>Math.abs(c-f)<.0001)))].sort((a,b)=>a-b);
+      const faded=highlightedRegion>=0&&highlightedRegion!==region;
+      const group=svgEl('g',{'data-region':region,opacity:faded?.2:1});body.append(group);
+      // The representative marks are actual model boundaries, sampled by index.
+      const representatives=new Set();
+      if(boundaries.length)for(let j=0;j<Math.min(4,boundaries.length);j++)representatives.add(Math.round((j+.5)*boundaries.length/Math.min(4,boundaries.length)-.5));
+      boundaries.forEach((f,i)=>{
+        const representative=representatives.has(i);
+        const line=svgEl('line',{x1:x(f),y1:top+(representative?12:21),x2:x(f),y2:bottom-9,stroke:palette[region],'stroke-width':representative?2:.6,'stroke-opacity':representative?.95:.26});
+        line.append(svgEl('title',{},t('boundaryTitle',region+1,number(f),representative)));group.append(line);
+      });
+    });
+    coarse.forEach((f,i)=>body.append(svgEl('line',{x1:x(f),y1:top+6,x2:x(f),y2:bottom,stroke:'#253d31','stroke-width':i===0||i===coarse.length-1?.75:1.7,'stroke-opacity':.9})));
+    body.append(svgEl('line',{x1:left,y1:bottom,x2:right,y2:bottom,stroke:'#536550','stroke-width':.8}));
+    body.append(svgEl('text',{x:(left+right)/2,y:bottom+43,fill:'#697465','text-anchor':'middle','font-family':'Avenir Next, Trebuchet MS, sans-serif','font-size':11},t('frequencyAxis')));
+    const modelWindow=Number(manifest.window_seconds)||Number(partition.nominal_end)-Number(partition.start)||Number(partition.end)-Number(partition.start);
+    $('chart-title').textContent=t('learnedWindow',number(modelWindow))+(Number(partition.padding_samples)>0?t('padding',number(Number(partition.end)-Number(partition.start))):'');
+    document.querySelectorAll('.region-btn').forEach(btn=>btn.setAttribute('aria-pressed',String(Number(btn.dataset.region)===highlightedRegion)));
+  }
+  function findWindow(time) {
+    // With overlapping windows, display the most recently started window.
+    let low=0,high=partitions.length-1,answer=0;
+    while(low<=high){const mid=(low+high)>>1;if(Number(partitions[mid].start)<=time+.0001){answer=mid;low=mid+1;}else high=mid-1;}
+    return answer;
+  }
+  function updatePartition() {
+    updateSpectrumCursor();
+    if(!ready||!partitions.length)return;
+    const current=Math.max(0,mediaTime()),index=findWindow(current),partition=partitions[index];
+    const percentage=Math.min(100,Math.max(0,current/Math.max(.001,duration())*100));
+    $('playhead').style.left=percentage+'%';
+    if(index===activeWindow)return;
+    activeWindow=index;
+    $('window-time').textContent=t('windowRange',secondsLabel(partition.start),secondsLabel(partition.end));
+    $('window-number').textContent=t('windowCount',index+1,partitions.length);
+    document.querySelectorAll('.window-tile').forEach((button,i)=>{button.setAttribute('aria-current',String(i===index));button.classList.toggle('completed',i<index);});
+    plot(index);
+  }
+  if(ready&&partitions.length){
+    $('waiting').hidden=true;$('timeline').hidden=false;$('chart-card').hidden=false;
+    partitions.forEach((partition,i)=>{
+      const button=document.createElement('button');button.type='button';button.className='window-tile';
+      const label=t('windowSeek',i+1,number(partition.start),number(partition.end));
+      button.setAttribute('aria-label',label);button.title=label;button.setAttribute('aria-current','false');
+      const next=i+1<partitions.length?Number(partitions[i+1].start):Number(manifest.duration)||Number(partition.end);
+      button.style.flexGrow=String(Math.max(.001,next-Number(partition.start)));
+      button.addEventListener('click',()=>seekMedia(Number(partition.start)));
+      button.addEventListener('keydown',event=>{let target;if(event.key==='ArrowRight')target=Math.min(partitions.length-1,i+1);if(event.key==='ArrowLeft')target=Math.max(0,i-1);if(event.key==='Home')target=0;if(event.key==='End')target=partitions.length-1;if(target!==undefined){event.preventDefault();$('timeline').querySelectorAll('button')[target].focus();}});
+      $('timeline').append(button);
+    });
+    for(let region=0;region<4;region++){
+      const button=document.createElement('button');button.type='button';button.className='region-btn';button.dataset.region=region;button.setAttribute('aria-pressed','false');
+      const label=hasRegions?'R'+(region+1)+' · '+number(coarse[region]/1000)+'–'+number(coarse[region+1]/1000)+' kHz':t('region',region+1);
+      button.setAttribute('aria-label',t('highlight',label));const dot=document.createElement('i');dot.className='region-dot';dot.style.background=palette[region];dot.setAttribute('aria-hidden','true');button.append(dot,document.createTextNode(label));
+      button.addEventListener('click',()=>{highlightedRegion=highlightedRegion===region?-1:region;plot(activeWindow);});$('region-legend').append(button);
+    }
+    
+    updatePartition();
+  }
+
+  function applyLanguage(nextLanguage) {
+    language = nextLanguage === 'zh' ? 'zh' : 'en';
+    document.documentElement.lang = language;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.dataset.i18n);});
+    document.querySelectorAll('[data-i18n-aria]').forEach(el=>{el.setAttribute('aria-label',t(el.dataset.i18nAria));});
+    if(audioMode){
+      document.querySelector('[data-i18n="headline"]').textContent=t('audioHeadline');
+      document.querySelector('[data-i18n-aria="videoSection"]').setAttribute('aria-label',t('audioSection'));
+      $('timeline').setAttribute('aria-label',t('audioTimeline'));
+      renderSpectrumAxes();updateSpectrumCursor();
+    }
+    const title=manifest.title || t(audioMode?'yourAudio':'yourVideo');
+    $('film-name').textContent=title;
+    document.title=title+' · '+t('studioTitle');
+    $('ready-label').textContent=t(ready?'ready':audioMode?'audioPreview':'preview');
+    $('model-label').textContent=modelLabel || t(ready?'modelOutput':audioMode?'originalAudioPreview':'originalPreview');
+    $('source-hint').textContent=t(ready?'sourceHint':'previewHint');
+    $('stem-badge').textContent=sourceLabel(activeSource);
+    document.querySelectorAll('.source-btn').forEach(btn=>{btn.querySelector('.source-label').textContent=t(btn.dataset.source);});
+    // Only change labels here: language switches must not touch media state.
+    $('mute').setAttribute('aria-label',t(outputMuted?'unmute':'mute'));
+    $('waiting-copy').textContent=t(ready?'noPartitionCopy':'waitingCopy');
+    $('chart-caption').textContent=t(Number(manifest.hop_seconds)<Number(manifest.window_seconds)?'overlapCaption':'caption');
+    $('footer-spec').textContent=manifest.window_seconds&&manifest.hop_seconds
+      ?t('footerSpec',number(manifest.window_seconds),number(manifest.hop_seconds),number((manifest.sample_rate||44100)/1000))
+      :t('footerDefault');
+    document.querySelectorAll('.window-tile').forEach((button,i)=>{
+      const partition=partitions[i],label=t('windowSeek',i+1,number(partition.start),number(partition.end));
+      button.setAttribute('aria-label',label);button.title=label;
+    });
+    document.querySelectorAll('.region-btn').forEach(button=>{
+      const region=Number(button.dataset.region);
+      const label=hasRegions?'R'+(region+1)+' · '+number(coarse[region]/1000)+'–'+number(coarse[region+1]/1000)+' kHz':t('region',region+1);
+      button.setAttribute('aria-label',t('highlight',label));
+      button.lastChild.nodeValue=label;
+    });
+    if(ready&&activeWindow>=0&&partitions[activeWindow]){
+      const partition=partitions[activeWindow];
+      $('window-time').textContent=t('windowRange',secondsLabel(partition.start),secondsLabel(partition.end));
+      $('window-number').textContent=t('windowCount',activeWindow+1,partitions.length);
+      plot(activeWindow);
+    }else{
+      $('window-time').textContent=t(ready?'noPartition':'awaiting');
+      $('chart-title').textContent=t('chartTitle');
+      $('chart-svg-title').textContent=t('svgTitle');
+      $('chart-svg-desc').textContent=t('svgDesc');
+    }
+    renderMessage();
+    reportHeight();
+  }
+  window.addEventListener('message',event=>{
+    if(event.source!==window.parent||event.origin!==window.location.origin)return;
+    if(event.data&&event.data.type==='dbs-language'&&['en','zh'].includes(event.data.language))applyLanguage(event.data.language);
+  });
+
+  function animate(now) {
+    if(now-lastUiTime>90){updatePartition();lastUiTime=now;}
+    if(activeSource!=='mix'&&audioReady&&!video.paused&&!video.seeking&&!audio.paused&&Math.abs(audio.currentTime-video.currentTime)>.2)alignAudio();
+    if(!video.paused)frameId=requestAnimationFrame(animate);
+  }
+  video.addEventListener('play',()=>{playAudio();cancelAnimationFrame(frameId);frameId=requestAnimationFrame(animate);});
+  video.addEventListener('pause',()=>{audio.pause();cancelAnimationFrame(frameId);updatePartition();});
+  video.addEventListener('waiting',()=>audio.pause());
+  video.addEventListener('playing',()=>playAudio());
+  video.addEventListener('seeking',()=>{audio.pause();alignAudio();updatePartition();});
+  video.addEventListener('seeked',()=>{alignAudio();if(!video.paused)playAudio();updatePartition();});
+  video.addEventListener('timeupdate',updatePartition);
+  video.addEventListener('ratechange',()=>{audio.playbackRate=video.playbackRate;});
+  video.addEventListener('ended',()=>{audio.pause();cancelAnimationFrame(frameId);updatePartition();});
+  video.addEventListener('loadedmetadata',()=>{updatePartition();if(audioMode)renderSpectrumAxes();});
+  video.addEventListener('error',()=>message(audioMode?(activeSource==='mix'?'audioError':'stemError'):'videoError'));
+  audio.addEventListener('error',()=>{if(activeSource!=='mix')message('stemError');});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){alignAudio();updatePartition();}});
+  window.addEventListener('pagehide',()=>{video.pause();audio.pause();});
+  updateVolume();
+  // Size the parent iframe to this content, never to the iframe viewport itself.
+  const studio = document.querySelector('.studio');
+  let lastReportedHeight = 0, resizeFrame = 0;
+  function reportHeight() {
+    resizeFrame = 0;
+    if (ready && partitions.length && activeWindow >= 0) {
+      const width = Math.max(320, Math.round($('chart').getBoundingClientRect().width || 1040));
+      if (width !== lastChartWidth) plot(activeWindow);
+    }
+    const height = Math.ceil(studio.getBoundingClientRect().height);
+    if (window.parent !== window && height !== lastReportedHeight) {
+      lastReportedHeight = height;
+      window.parent.postMessage({type:'dbs-studio-height',height}, window.location.origin);
+    }
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(() => {
+    if (!resizeFrame) resizeFrame = requestAnimationFrame(reportHeight);
+  }).observe(studio);
+  window.addEventListener('load', reportHeight);
+  window.addEventListener('resize', reportHeight);
+  showSpectrogram();
+  applyLanguage(language);
+  if(window.parent!==window)window.parent.postMessage({type:'dbs-language-ready'},window.location.origin);
+})();
+</script>
+</body>
+</html>

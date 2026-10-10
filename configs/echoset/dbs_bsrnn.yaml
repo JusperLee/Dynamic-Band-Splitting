@@ -1,0 +1,77 @@
+# DBS-BSRNN on EchoSet (16 kHz, two speakers): 67 tokens over 321 bins.
+seed: 2026
+
+experiment:
+  dir: runs
+  name: echoset-dbs-bsrnn
+
+ddp:
+  backend: gloo
+
+data:
+  _target_: dbs.data.EchoSetDataModule
+  train_dir: null
+  valid_dir: null
+  test_dir: null
+  sample_rate: 16000
+  segment: 3.0
+  batch_size: 2
+  num_workers: 8
+  pin_memory: true
+
+model:
+  _target_: dbs.models.DBSBSRNN
+  dim: 192
+  depth: 6
+  num_stems: 2
+  sample_rate: 16000
+  rnn_hidden_size: 128
+  stft_n_fft: 640
+  stft_hop_length: 160
+  stft_win_length: 640
+  region_configs:
+    - {start: 0, end: 40, target_ratio: 1.01, max_chunks: 40}
+    - {start: 40, end: 80, target_ratio: 4.0, max_chunks: 10}
+    - {start: 80, end: 168, target_ratio: 11.0, max_chunks: 8}
+    - {start: 168, end: 321, target_ratio: 17.0, max_chunks: 9}
+
+system:
+  objective: pit_neg_sisdr
+  ratio_loss_weight: {max: 0.02, start: 30, end: 80}
+  optimizer: {_target_: torch.optim.Adam, lr: 1.0e-3, weight_decay: 0.0}
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    mode: min
+    factor: 0.5
+    patience: 10
+    threshold: 1.0e-3
+    threshold_mode: rel
+    min_lr: 5.0e-5
+    monitor: val_loss
+  validation:
+    inference: {mode: full}
+    loss: pit_neg_sisdr
+    order: pit
+    metrics: [snr, sisdr, sisdri]
+
+callbacks:
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${experiment.dir}/${experiment.name}/checkpoints
+    monitor: val_loss
+    mode: min
+    save_top_k: 5
+    save_last: true
+    filename: "{epoch}"
+  - _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val_loss
+    mode: min
+    patience: 20
+
+trainer:
+  accelerator: gpu
+  devices: 4
+  precision: 32-true
+  max_epochs: 500
+  gradient_clip_val: 5.0
+  num_sanity_val_steps: 0
+  log_every_n_steps: 50

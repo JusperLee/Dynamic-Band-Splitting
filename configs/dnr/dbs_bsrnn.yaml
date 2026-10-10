@@ -1,0 +1,84 @@
+# DBS-BSRNN (128) on DnR v2: the released checkpoint JusperLee/DBS-BSRNN-DnR.
+# 4 GPUs x batch 1, 3 s crops, 1000 updates per epoch; validation on full
+# tracks with 3 s / 1.5 s overlap-add.
+seed: 20260903
+
+experiment:
+  dir: runs
+  name: dnr-dbs-bsrnn
+
+data:
+  _target_: dbs.data.DnRDataModule
+  train_list: null   # .npy list of HDF5 files with {music,sfx,speech}_VAD segments
+  train_dir: null    # or: a directory of JSON manifests (random crops)
+  valid_dir: null
+  test_dir: null
+  sample_rate: 44100
+  segment: 3.0
+  num_iter_per_epoch: 1000
+  gain_db: [-10.0, 10.0]
+  drop_prob: 0.1
+  normalize: true
+  batch_size: 1
+  num_workers: 8
+  pin_memory: true
+
+model:
+  _target_: dbs.models.DBSBSRNN
+  dim: 128
+  depth: 6
+  num_stems: 3
+  sample_rate: 44100
+  rnn_hidden_size: 128
+  region_configs:
+    - {start: 0, end: 64, target_ratio: 2, max_chunks: 64}
+    - {start: 64, end: 128, target_ratio: 2, max_chunks: 64}
+    - {start: 128, end: 576, target_ratio: 8, max_chunks: 32}
+    - {start: 576, end: 1025, target_ratio: 8, max_chunks: 32}
+
+system:
+  objective: pit_neg_sisdr
+  ratio_loss_weight: 0.01
+  optimizer: {_target_: torch.optim.Adam, lr: 1.0e-3, weight_decay: 0.0}
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    mode: max
+    factor: 0.5
+    patience: 10
+    threshold: 1.0e-3
+    threshold_mode: rel
+    min_lr: 5.0e-5
+    monitor: val_avg_snr
+  validation:
+    inference: {mode: chunked, chunk_seconds: 3.0, hop_seconds: 1.5}
+    loss: pit_neg_sisdr
+    order: pit
+    metrics: [snr, sisdr, sisdri]
+
+callbacks:
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${experiment.dir}/${experiment.name}/checkpoints
+    monitor: val_avg_snr
+    mode: max
+    save_top_k: 5
+    save_last: true
+    filename: "{epoch}"
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${experiment.dir}/${experiment.name}/checkpoints_sfx
+    monitor: val_sfx_snr
+    mode: max
+    save_top_k: 3
+    filename: "sfx-{epoch}-{val_sfx_snr:.3f}"
+  - _target_: pytorch_lightning.callbacks.EarlyStopping
+    monitor: val_avg_snr
+    mode: max
+    patience: 50
+
+trainer:
+  accelerator: gpu
+  devices: 4
+  precision: 16-mixed
+  max_epochs: 500
+  gradient_clip_val: 5.0
+  num_sanity_val_steps: 2
+  log_every_n_steps: 20

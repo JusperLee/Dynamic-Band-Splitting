@@ -1,0 +1,9 @@
+# UI stack of the studio. Install the dbs package first, from the repository root:
+#   pip install -r requirements.txt && pip install --no-deps -e .
+gradio==6.29.1
+fastapi==0.143.0
+uvicorn==0.54.0
+numpy==2.4.6
+scipy==1.17.1
+soundfile==0.14.0
+pillow==12.3.0

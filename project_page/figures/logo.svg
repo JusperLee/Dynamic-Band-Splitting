@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="DBS logo: unevenly spaced frequency bands">
+  <rect x="1" y="1" width="62" height="62" rx="14" fill="#f7f9fa" stroke="#dbe3e8" stroke-width="2"/>
+  <g fill="#1f6f9c">
+    <rect x="10" y="18" width="2.6" height="28" rx="1.3"/>
+    <rect x="15.2" y="18" width="2.6" height="28" rx="1.3"/>
+    <rect x="19.4" y="18" width="2.6" height="28" rx="1.3" opacity=".55"/>
+  </g>
+  <g fill="#2f8a6a">
+    <rect x="27" y="18" width="2.6" height="28" rx="1.3"/>
+    <rect x="34.6" y="18" width="2.6" height="28" rx="1.3" opacity=".55"/>
+  </g>
+  <g fill="#d0463b">
+    <rect x="43" y="18" width="2.6" height="28" rx="1.3"/>
+    <rect x="51.4" y="18" width="2.6" height="28" rx="1.3" opacity=".55"/>
+  </g>
+</svg>

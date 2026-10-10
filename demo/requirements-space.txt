@@ -1,0 +1,14 @@
+# Documented ZeroGPU runtime; the local demo and training environments are separate.
+torch==2.13.0
+numpy==2.4.6
+scipy==1.17.1
+einops==0.8.2
+huggingface_hub==2.2.0
+safetensors==0.8.0
+rotary-embedding-torch==0.9.1
+soundfile==0.14.0
+gradio==6.29.1
+fastapi==0.143.0
+uvicorn==0.54.0
+pillow==12.3.0
+spaces==0.51.3

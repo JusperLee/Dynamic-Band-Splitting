@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Runtime outputs
+outputs/
+runs/
+logs/
+lightning_logs/
+wandb/
+swanlog/
+downloads/
+
+# Weights are hosted on the Hugging Face Hub
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+checkpoints/
+
+# Local recordings / audio scratch
+*.wav
+*.flac
+demo/*.mp4
+dbs.egg-info/

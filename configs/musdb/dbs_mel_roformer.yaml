@@ -1,0 +1,77 @@
+# DBS-MelRoFormer on MUSDB18-HQ: 100k updates (global batch 16), aligned 2 s chunks with
+# cross-track remixing, the last 10 training tracks held out for validation.
+seed: 20260919
+
+experiment:
+  dir: runs
+  name: musdb-dbs-mel-roformer
+
+ddp:
+  find_unused_parameters: false
+
+data:
+  _target_: dbs.data.MusdbChunkDataModule
+  train_dir: null   # <musdb18hq>/train
+  test_dir: null    # <musdb18hq>/test
+  sample_rate: 44100
+  chunk_samples: 88200
+  steps_per_epoch: 1000
+  seed: 20260919
+  holdout_tracks: 10
+  valid_windows: 12
+  augment: true
+  remix_stem_probability: 0.33
+  gain_db: 6.0
+  batch_size: 4
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+
+model:
+  _target_: dbs.models.DBSMelRoformer
+
+system:
+  objective: model
+  router_weight_decay: 0.0
+  optimizer: {_target_: torch.optim.AdamW, lr: 5.0e-4, weight_decay: 1.0e-4}
+  scheduler:
+    _target_: dbs.engine.WarmupStepDecay
+    warmup_steps: 2000
+    decay: 0.9
+    decay_every: 40000
+    interval: step
+  validation:
+    inference: {mode: full}
+    metrics: [sdr]
+
+evaluation:
+  report: musdb
+  inference: {mode: chunked_tail, chunk_samples: 88200, num_overlap: 4}
+
+callbacks:
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${experiment.dir}/${experiment.name}/checkpoints
+    monitor: val_avg_sdr
+    mode: max
+    save_top_k: 1
+    save_last: true
+    filename: "best-{step}-{val_avg_sdr:.4f}"
+    auto_insert_metric_name: false
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${experiment.dir}/${experiment.name}/checkpoints
+    every_n_train_steps: 10000
+    save_top_k: -1
+    filename: "update-{step}"
+    auto_insert_metric_name: false
+
+trainer:
+  accelerator: gpu
+  devices: 2
+  precision: 16-mixed
+  max_steps: 100000
+  max_epochs: -1
+  accumulate_grad_batches: 2
+  gradient_clip_val: 1.0
+  check_val_every_n_epoch: 40
+  num_sanity_val_steps: 0
+  log_every_n_steps: 100

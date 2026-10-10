@@ -1,0 +1,76 @@
+# DBS-BSRNN on MUSDB18-HQ (Music-Source-Separation-Training recipe): four stems jointly,
+# random-mix 131584-sample chunks, L1 + multi-resolution STFT loss (inside the model),
+# validation on the full test tracks with the MSST overlap-add demix.
+seed: 0
+
+experiment:
+  dir: runs
+  name: musdb-dbs-bsrnn
+
+data:
+  _target_: dbs.data.MusdbDataModule
+  train_dir: null   # <musdb18hq>/train
+  valid_dir: null   # <musdb18hq>/test (validation follows the MSST recipe)
+  test_dir: null    # <musdb18hq>/test
+  sample_rate: 44100
+  chunk_samples: 131584
+  min_mean_abs: 1.0e-3
+  steps_per_epoch: 1000
+  loudness: [0.5, 1.5]
+  batch_size: 1
+  num_workers: 4
+
+model:
+  _target_: dbs.models.DBSBSRNN
+  dim: 128
+  depth: 12
+  num_stems: 4
+  stereo: true
+  sample_rate: 44100
+  rnn_hidden_size: 256
+  region_configs:
+    - {start: 0, end: 64, target_ratio: 2, max_chunks: 32}
+    - {start: 64, end: 128, target_ratio: 2, max_chunks: 32}
+    - {start: 128, end: 576, target_ratio: 14, max_chunks: 32}
+    - {start: 576, end: 1025, target_ratio: 14.03125, max_chunks: 32}
+  use_mixture_context: true
+  ratio_loss_weight: 0.01
+  multi_stft_resolution_loss_weight: 1.0
+  squeeze_mono_output: false
+  activation_checkpointing: true
+
+system:
+  objective: model
+  optimizer: {_target_: torch.optim.Adam, lr: 1.0e-4}
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    mode: max
+    factor: 0.5
+    patience: 10
+    monitor: val_avg_sdr
+  validation:
+    inference: {mode: msst, chunk_samples: 131584, num_overlap: 4, batch_size: 1}
+    metrics: [sdr]
+
+evaluation:
+  report: musdb
+  inference: {mode: msst, chunk_samples: 131584, num_overlap: 4, batch_size: 1}
+  autocast: true
+
+callbacks:
+  - _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    dirpath: ${experiment.dir}/${experiment.name}/checkpoints
+    monitor: val_avg_sdr
+    mode: max
+    save_top_k: 1
+    save_last: true
+    filename: "{epoch}-{val_avg_sdr:.4f}"
+
+trainer:
+  accelerator: gpu
+  devices: 1
+  precision: 16-mixed
+  max_epochs: 500
+  accumulate_grad_batches: 4
+  gradient_clip_val: 1.0
+  num_sanity_val_steps: 0

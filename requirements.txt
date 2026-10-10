@@ -1,0 +1,16 @@
+# Exact versions of the verified training and evaluation environment (Python 3.11).
+# On a CUDA machine install the matching torch/torchaudio wheels first, e.g.
+#   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cu130
+torch==2.14.1
+numpy==2.4.6
+einops==0.8.2
+huggingface_hub==2.2.0
+safetensors==0.8.0
+rotary-embedding-torch==0.9.1
+soundfile==0.14.0
+pytorch-lightning==2.6.6
+omegaconf==2.3.1
+h5py==3.16.0
+fast-bss-eval==0.1.4
+museval==0.4.1
+pytest==9.1.1

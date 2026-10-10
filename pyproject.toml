@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dbs"
+version = "1.0.0"
+description = "Learning Where to Split: Dynamic Band Splitting for Audio Source Separation"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "THIRD_PARTY.md"]
+authors = [{ name = "Bingzhe Zhang" }, { name = "Kai Li" }, { name = "Xiaolin Hu" }]
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=2.2",
+    "numpy>=1.24",
+    "einops>=0.7",
+    "huggingface_hub>=0.23",
+    "safetensors>=0.4",
+    "rotary-embedding-torch>=0.6",
+    "soundfile>=0.12",
+]
+
+[project.optional-dependencies]
+train = [
+    "pytorch-lightning>=2.2",
+    "omegaconf>=2.3",
+    "h5py>=3.9",
+    "fast-bss-eval>=0.1.4",
+    "museval>=0.4.1",
+]
+dev = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://cslikai.cn/Dynamic-Band-Splitting/"
+Repository = "https://github.com/JusperLee/Dynamic-Band-Splitting"
+
+[project.scripts]
+dbs-train = "dbs.train:main"
+dbs-evaluate = "dbs.evaluate:cli"
+
+[tool.setuptools.packages.find]
+include = ["dbs*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
