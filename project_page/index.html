@@ -30,7 +30,11 @@ a{color:var(--accent)}
   border:1px solid var(--line);border-radius:7px;font-size:14px;font-weight:560;
   color:var(--ink);text-decoration:none;transition:border-color .15s,color .15s}
 .btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .btn svg{width:15px;height:15px;fill:currentColor;flex:none}
+.btn .hf-icon{width:20px;height:20px;object-fit:contain;flex:none}
+.btn.hf-demo{background:#fff8df;border-color:#f0d998}
+.btn.hf-demo:hover{background:#fff2c4;border-color:#d9ad40;color:var(--ink)}
 .venue{margin:0 0 22px;font-size:12.5px;font-weight:700;letter-spacing:.14em;
   text-transform:uppercase;color:var(--muted)}
 h1{margin:0 auto;max-width:15em;font-size:clamp(30px,4.1vw,50px);line-height:1.12;
@@ -84,7 +88,7 @@ figcaption b{color:var(--body);font-weight:650}
 .step p{font-size:13.5px;line-height:1.55;color:var(--muted)}
 
 /* ---------- tables ---------- */
-.tables{display:grid;gap:34px;margin-top:38px}
+.tables{display:grid;grid-template-columns:minmax(0,1fr);gap:34px;margin-top:38px}
 .tbl-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin-bottom:12px}
 .tbl-head h3{margin:0}
 .tbl-head span{font-size:13.5px;color:var(--muted)}
@@ -174,6 +178,18 @@ footer p{max-width:62em}
       <a class="btn" href="#demo">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.7v10.6c0 .43.47.7.84.48l8.4-5.3a.56.56 0 0 0 0-.96l-8.4-5.3a.56.56 0 0 0-.84.48Z"/></svg>
         Audio demo
+      </a>
+      <a class="btn hf-demo" href="https://huggingface.co/spaces/JusperLee/DBS-Demo" target="_blank" rel="noopener noreferrer">
+        <img class="hf-icon" src="figures/huggingface.svg" width="20" height="20" alt="" aria-hidden="true">
+        Hugging Face Demo
+      </a>
+      <a class="btn" href="https://huggingface.co/JusperLee/DBS-BSRNN-DnR" target="_blank" rel="noopener noreferrer" aria-label="DBS-BSRNN pretrained model on Hugging Face">
+        <img class="hf-icon" src="figures/huggingface.svg" width="20" height="20" alt="" aria-hidden="true">
+        DBS-BSRNN
+      </a>
+      <a class="btn" href="https://huggingface.co/JusperLee/DBS-TIGER-DnR" target="_blank" rel="noopener noreferrer" aria-label="DBS-TIGER pretrained model on Hugging Face">
+        <img class="hf-icon" src="figures/huggingface.svg" width="20" height="20" alt="" aria-hidden="true">
+        DBS-TIGER
       </a>
     </div>
   </div>
