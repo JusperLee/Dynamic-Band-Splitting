@@ -21,12 +21,15 @@ spectrogram. The interface is available in English and Chinese.
 
 Bingzhe Zhang\*, Kai Li\*†, Xiaolin Hu† · Tsinghua University
 
+[Paper](https://arxiv.org/abs/2610.14993) ·
+[PDF](https://arxiv.org/pdf/2610.14993) ·
+[HF Paper](https://huggingface.co/papers/2610.14993) ·
 [Code](https://github.com/JusperLee/Dynamic-Band-Splitting) ·
 [Project page](https://cslikai.cn/Dynamic-Band-Splitting/)
 
-The studio displays the paper title, authors and affiliations. Set `DBS_PAPER_URL` to the
-public paper URL in the Space's Variables settings to enable the Paper button. Until a URL
-is supplied, the button says that the link is coming soon.
+The studio displays the paper title, authors and affiliations. Set
+`DBS_PAPER_URL=https://arxiv.org/abs/2610.14993` in the Space's Variables settings or in your
+local environment to enable the Paper button.
 
 ## Run locally
 
@@ -70,3 +73,18 @@ its allocation.
   MP4 files (video) or the spectrogram PNG files (audio).
 - On CPU, DBS-TIGER runs single-threaded with NNPACK disabled during separation, which is faster
   for its grouped convolutions and gives the same output.
+
+## Citation
+
+```bibtex
+@misc{zhang2026dbs,
+  title         = {Learning Where to Split: Dynamic Band Splitting for Audio Source Separation},
+  author        = {Zhang, Bingzhe and Li, Kai and Hu, Xiaolin},
+  year          = {2026},
+  eprint        = {2610.14993},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SD},
+  doi           = {10.48550/arXiv.2610.14993},
+  url           = {https://arxiv.org/abs/2610.14993}
+}
+```
