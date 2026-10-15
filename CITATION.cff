@@ -12,7 +12,7 @@ authors:
   - family-names: Hu
     given-names: Xiaolin
 preferred-citation:
-  type: unpublished
+  type: article
   title: "Learning Where to Split: Dynamic Band Splitting for Audio Source Separation"
   authors:
     - family-names: Zhang
@@ -22,3 +22,7 @@ preferred-citation:
     - family-names: Hu
       given-names: Xiaolin
   year: 2026
+  journal: arXiv
+  doi: 10.48550/arXiv.2610.14993
+  url: "https://arxiv.org/abs/2610.14993"
+
