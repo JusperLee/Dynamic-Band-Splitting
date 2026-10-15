@@ -11,6 +11,9 @@
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2610.14993">📄 Paper</a> &nbsp;|&nbsp;
+  <a href="https://arxiv.org/pdf/2610.14993">PDF</a> &nbsp;|&nbsp;
+  <a href="https://huggingface.co/papers/2610.14993">🤗 HF Paper</a> &nbsp;|&nbsp;
   <a href="https://cslikai.cn/Dynamic-Band-Splitting/">🌐 Project Page</a> &nbsp;|&nbsp;
   <a href="https://huggingface.co/spaces/JusperLee/DBS-Demo">🎧 Demo</a> &nbsp;|&nbsp;
   <a href="https://huggingface.co/JusperLee/DBS-BSRNN-DnR">🤗 DBS-BSRNN</a> &nbsp;|&nbsp;
@@ -29,6 +32,7 @@
 
 ## 💥 News
 
+- **[2026-10-15]** 📄 Our paper, [Learning Where to Split: Dynamic Band Splitting for Audio Source Separation](https://arxiv.org/abs/2610.14993), is now available on arXiv! Read the [PDF](https://arxiv.org/pdf/2610.14993) and join the [discussion on Hugging Face](https://huggingface.co/papers/2610.14993).
 - **[2026-10-10]** 🚀 We release the code, pretrained [DBS-BSRNN](https://huggingface.co/JusperLee/DBS-BSRNN-DnR) and [DBS-TIGER](https://huggingface.co/JusperLee/DBS-TIGER-DnR) models, and an interactive [listening studio](https://huggingface.co/spaces/JusperLee/DBS-Demo)! Upload audio or video, listen to speech, music and sound effects, and explore the model's dynamic frequency bands.
 
 ## 🧩 Overview
@@ -160,9 +164,14 @@ tests/
 
 ```bibtex
 @misc{zhang2026dbs,
-  title  = {Learning Where to Split: Dynamic Band Splitting for Audio Source Separation},
-  author = {Zhang, Bingzhe and Li, Kai and Hu, Xiaolin},
-  year   = {2026}
+  title         = {Learning Where to Split: Dynamic Band Splitting for Audio Source Separation},
+  author        = {Zhang, Bingzhe and Li, Kai and Hu, Xiaolin},
+  year          = {2026},
+  eprint        = {2610.14993},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SD},
+  doi           = {10.48550/arXiv.2610.14993},
+  url           = {https://arxiv.org/abs/2610.14993}
 }
 ```
 
@@ -170,3 +179,4 @@ tests/
 
 Apache License 2.0. Parts of the code are adapted from BS-RoFormer, Music-Source-Separation-Training
 and TIGER under the MIT License; see [THIRD_PARTY.md](THIRD_PARTY.md).
+
